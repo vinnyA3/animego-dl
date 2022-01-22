@@ -4,31 +4,38 @@ const { mkdir: mkdirAsync } = require("fs/promises");
 const path = require("path");
 const https = require("https");
 const { spawn } = require("child_process");
+
 const cheerio = require("cheerio");
+const yargs = require("yargs");
 
-const SERIES_ROOT_URL =
-  "https://ww2.gogoanimes.org/category/neon-genesis-evangelion-dub";
-const BASE_URL = "https://ww2.gogoanimes.org/watch/neon-genesis-evangelion-dub";
+const GOGO_BASE_URL = "https://ww2.gogoanimes.org/category";
+const GOGO_BASE_WATCH_URL = "https://ww2.gogoanimes.org/watch";
 
-// TODO: once we iterate on & improve the script, we're going to:
-// * read the url as a commnad line argument
-// * generalize the creation of the episode list
-const evangelionDubEpisodeList = ((baseUrl) => {
-  const episodeCount = 27;
+const cliOptions = yargs
+  .usage("Usage: -d <download destination> -n <anime name>")
+  .option("d", {
+    alias: "directory",
+    describe: "Source directory for your anime download",
+    type: "string",
+    demandOption: true,
+  })
+  .option("n", {
+    alias: "anime-name",
+    describe: "The title of your desired anime to download",
+    type: "string",
+    demandOption: true,
+  }).argv;
+
+const generateEpisodeListFromRange = (range, baseUrl) => {
+  const { start, end } = range;
   let episodeList = [];
 
-  for (let i = 1; i < episodeCount; i++) {
-    episodeList.push(`${baseUrl}-episode-${i + 1}`);
+  for (let i = start; i <= end; i++) {
+    episodeList.push(`${baseUrl}episode-${i}`);
   }
 
   return episodeList;
-})(BASE_URL);
-
-// TODO: figure out how to get the episode list + count
-// problem - the series details page (on animegogo) dynamically added the list with an external
-// script, can we wait for this script to run & cheerio-scrape the generated html?
-//
-// const getSeriesEpisodeList = () => {}
+};
 
 const queryEpisodeDetailsPageForVideoSrc = (html) => {
   const $ = cheerio.load(html);
@@ -64,6 +71,38 @@ const extractVideoMetadataFromDetailsPage = (pageHTML) => {
   return videoMetadata;
 };
 
+// TODO: relocate utils
+const compose2 = (f) => (g) => (x) => f(g(x));
+const stripNewlinesAndSpaces = (str) => str.replace(/[\n\s]+/, "");
+const stringToNum = (str) => parseInt(str);
+const stripCharsAndStringToNum = compose2(stringToNum)(stripNewlinesAndSpaces);
+
+const getEpisodeRangesFromDetailsPage = (pageHTML) => {
+  const $ = cheerio.load(pageHTML);
+  const episodePage = $("#episode_page");
+  const episodeRanges = episodePage.find("li");
+  let extractedRanges = [];
+
+  episodeRanges.each(function () {
+    const range = $(this).find("a").text();
+    const bounds = range.split("-");
+
+    extractedRanges.push(
+      bounds.length === 1
+        ? {
+            start: 1,
+            end: 1,
+          }
+        : {
+            start: stripCharsAndStringToNum(bounds[0]),
+            end: stripCharsAndStringToNum(bounds[1]),
+          }
+    );
+  });
+
+  return extractedRanges;
+};
+
 const downloadAndSaveVideo = (videoSourceUrl, videoName) =>
   new Promise((resolve, reject) => {
     if (!videoSourceUrl) {
@@ -97,10 +136,21 @@ const httpGet = (url) => {
   });
 };
 
-(async () => {
+const normalizeInputAnimeName = (animeName) => {
+  const re = /\s/i;
+  return animeName.toLowerCase().replace(re, "-");
+};
+
+(async (cliArgs, GOGO_BASE_URL, GOGO_BASE_WATCH_URL) => {
   try {
-    const saveLocation = "/tmp";
-    const seriesDetailsPageHTML = await httpGet(SERIES_ROOT_URL);
+    const saveLocation = cliArgs.directory;
+    const normalizedAnimeName = normalizeInputAnimeName(cliArgs.animeName);
+    const seriesRootUrl = `${GOGO_BASE_URL}/${normalizedAnimeName}`;
+    const seriesDetailsPageHTML = await httpGet(seriesRootUrl);
+
+    const episodeRanges = getEpisodeRangesFromDetailsPage(
+      seriesDetailsPageHTML
+    );
 
     const videoMetadata = extractVideoMetadataFromDetailsPage(
       seriesDetailsPageHTML
@@ -109,29 +159,42 @@ const httpGet = (url) => {
     const { title, releaseYear } = videoMetadata;
     const seriesFolderName = `${title} (${releaseYear})`;
 
-    // Change working diretory to desired save location, asynchronously make
-    // series directory, and finally, change working directory to new series
-    // directory
+    // // Change working diretory to desired save location, asynchronously make
+    // // series directory, and finally, change working directory to new series
+    // // directory
     process.chdir(saveLocation);
     await mkdirAsync(path.join(saveLocation, seriesFolderName));
     process.chdir(path.join(saveLocation, seriesFolderName));
 
-    for (let i = 0; i < 1; i++) {
-      const videoName = `episode-${i}`;
-      const episodeUrl = evangelionDubEpisodeList[i];
-      const episodeDetailsPageHTML = await httpGet(episodeUrl);
-
-      const videoSourceUrl = queryEpisodeDetailsPageForVideoSrc(
-        episodeDetailsPageHTML
+    for (let i = 0; i < episodeRanges.length; i++) {
+      const episodeList = generateEpisodeListFromRange(
+        episodeRanges[i],
+        `${GOGO_BASE_WATCH_URL}/${normalizedAnimeName}-`
       );
 
-      console.log(`Now downloading: ${episodeUrl}\n`);
+      for (let j = 0; j < episodeList.length; j++) {
+        const videoName = `episode-${j + 1}`;
+        const episodeUrl = episodeList[i];
+        const episodeDetailsPageHTML = await httpGet(episodeUrl);
 
-      if (videoSourceUrl) {
-        await downloadAndSaveVideo(videoSourceUrl, videoName);
-        console.log("The video has been downloaded!");
+        const videoSourceUrl = queryEpisodeDetailsPageForVideoSrc(
+          episodeDetailsPageHTML
+        );
+
+        console.log(`Now downloading: ${episodeUrl}\n`);
+
+        if (videoSourceUrl) {
+          await downloadAndSaveVideo(videoSourceUrl, videoName);
+          console.log("The video has been downloaded!");
+        }
       }
     }
+
+    console.log(
+      "Your anime series has been downloaded & is ready to watch, enjoy!"
+    );
+
+    process.exit(0);
   } catch (e) {
     console.error(
       `\nOo nyo :3 .. There was an error!\n\nPlease contact the developer
@@ -141,4 +204,4 @@ const httpGet = (url) => {
     console.error(e);
     process.exit(1);
   }
-})();
+})(cliOptions, GOGO_BASE_URL, GOGO_BASE_WATCH_URL);
