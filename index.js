@@ -42,8 +42,8 @@ const downloadAndSaveVideo = (saveLocation, remoteVideoSrc) =>
       const ytDl = spawn("yt-dlp", [remoteVideoSrc]);
 
       ytDl.stdout.on("data", (buf) => console.log(buf.toString("utf8")));
-      ytDl.on("close", (code) => reject(code));
-      ytDl.on("exit", (code) => resolve(code));
+      ytDl.on("close", reject);
+      ytDl.on("exit", resolve);
     } catch (e) {
       throw new Error(e);
     }
