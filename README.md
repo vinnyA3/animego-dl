@@ -28,3 +28,10 @@ A simple node script that downloads your desired anime series from `gogoanimes`.
 2. Optionally modify the download destination folder (line `74` of `index.js`)
 3. In your terminal: `node index.js`
 4. Pour a :beer:, you'll be waiting a bit.
+
+## TODO
+
+- [ ] process cli arguments (remove hardcoded shit):
+  - accept series name, desired season, and download destination
+- [ ] remove Evangelion-specific naming in source 
+- [ ] dockerize all the things
