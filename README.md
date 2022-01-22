@@ -1,6 +1,10 @@
 Anime Series Downloader
 =======================
 
+<img src="./git-images/anime.png" alt="anime-doko" width="250" height="250">
+<br />
+<br />
+
 A simple node script that downloads your desired anime series from `gogoanimes`.
 
 > :warning: This script / tool will be improved in the near future. A modification of
