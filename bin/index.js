@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { mkdir: mkdirAsync } = require("fs/promises");
 const path = require("path");
 const https = require("https");

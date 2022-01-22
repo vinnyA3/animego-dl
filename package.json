@@ -1,15 +1,25 @@
 {
-  "name": "anime-gogo-scrape",
+  "name": "gogoanime-dl-cli",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A cli tool to download your favorite anime series from gogoanimes.",
+  "main": "bin/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "bin": {
+    "anime-dl": "./bin/index.js"
+  },
+  "keywords": [
+    "anime",
+    "scraper",
+    "anime download",
+    "node",
+    "otaku"
+  ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.10"
+    "cheerio": "^1.0.0-rc.10",
+    "yargs": "^17.3.1"
   }
 }
