@@ -16,9 +16,9 @@ First, make sure you have the following installed on your machine:
 * [yt-dlp](https://github.com/yt-dlp/yt-dlp) - a youtube download fork with additional fixes and features.
 * nodejs - the latest LTS should be good
 
-## Installation and Usage
+## Installation
 
-**Install**:
+**Steps**:
 1. Clone repo & `cd anime-series-dl`
 2. Install script dependencies: `node install`
 3. *optional* - install command globally:
