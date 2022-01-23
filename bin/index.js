@@ -137,7 +137,7 @@ const httpGet = (url) => {
 };
 
 const normalizeInputAnimeName = (animeName) => {
-  const re = /\s/i;
+  const re = /\s/gi;
   return animeName.toLowerCase().replace(re, "-");
 };
 
