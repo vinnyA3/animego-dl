@@ -1,7 +1,7 @@
 {
   "name": "gogoanime-dl-cli",
   "version": "1.0.0",
-  "description": "A cli tool to download your favorite anime series from gogoanimes.",
+  "description": "A cli tool to download your favorite anime series from gogoanimes",
   "main": "bin/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,6 +9,7 @@
   "bin": {
     "anime-dl": "./bin/index.js"
   },
+  "homepage": "https://github.com/vinnyA3/anime-series-dl#readme",
   "keywords": [
     "anime",
     "scraper",
@@ -16,8 +17,11 @@
     "node",
     "otaku"
   ],
-  "author": "",
-  "license": "MIT",
+  "author": "vinnyA3",
+  "bugs": {
+    "url": "https://github.com/vinnyA3/anime-series-dl/issues"
+  },
+  "license": "GPL-3.0",
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",
     "yargs": "^17.3.1"
