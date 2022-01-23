@@ -4,7 +4,8 @@
   "description": "A cli tool to download your favorite anime series from gogoanimes",
   "main": "bin/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --recursive './lib/**/test/*.js'",
+    "test:watch": "npm run test -- --growl false -w --watch-files ./lib/**/test/*.js ./lib/**/*.js"
   },
   "bin": {
     "anime-dl": "./bin/index.js"
@@ -25,5 +26,19 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",
     "yargs": "^17.3.1"
+  },
+  "devDependencies": {
+    "mocha": "^9.1.4"
+  },
+  "mocha": {
+    "diff": true,
+    "extension": [
+      "js"
+    ],
+    "reporter": "spec",
+    "timeout": "2000",
+    "ui": "bdd",
+    "growl": true,
+    "inline-diffs": true
   }
 }
