@@ -174,7 +174,7 @@ const normalizeInputAnimeName = (animeName) => {
 
       for (let j = 0; j < episodeList.length; j++) {
         const videoName = `episode-${j + 1}`;
-        const episodeUrl = episodeList[i];
+        const episodeUrl = episodeList[j];
         const episodeDetailsPageHTML = await httpGet(episodeUrl);
 
         const videoSourceUrl = queryEpisodeDetailsPageForVideoSrc(
