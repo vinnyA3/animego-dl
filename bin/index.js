@@ -1,8 +1,5 @@
 #!/usr/bin/env node
 
-const { mkdir: mkdirAsync } = require("fs/promises");
-const path = require("path");
-
 const yargs = require("yargs");
 
 const AnimeDL = require("../lib/anime-dl");
@@ -23,4 +20,12 @@ const cliOptions = yargs
   }).argv;
 
 // Initialize
-AnimeDL(cliOptions);
+AnimeDL(cliOptions)
+  .then((successMessage) => {
+    console.log(successMessage);
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
