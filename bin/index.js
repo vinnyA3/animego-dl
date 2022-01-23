@@ -141,6 +141,9 @@ const normalizeInputAnimeName = (animeName) => {
   return animeName.toLowerCase().replace(re, "-");
 };
 
+const createEpisodeFilename = (index) =>
+  `episode-${index < 10 ? "0" + index : index}`;
+
 (async (cliArgs, GOGO_BASE_URL, GOGO_BASE_WATCH_URL) => {
   try {
     const saveLocation = cliArgs.directory;
@@ -159,9 +162,9 @@ const normalizeInputAnimeName = (animeName) => {
     const { title, releaseYear } = videoMetadata;
     const seriesFolderName = `${title} (${releaseYear})`;
 
-    // // Change working diretory to desired save location, asynchronously make
-    // // series directory, and finally, change working directory to new series
-    // // directory
+    // Change working diretory to desired save location, asynchronously make
+    // series directory, and finally, change working directory to new series
+    // directory
     process.chdir(saveLocation);
     await mkdirAsync(path.join(saveLocation, seriesFolderName));
     process.chdir(path.join(saveLocation, seriesFolderName));
@@ -173,7 +176,7 @@ const normalizeInputAnimeName = (animeName) => {
       );
 
       for (let j = 0; j < episodeList.length; j++) {
-        const videoName = `episode-${j + 1}`;
+        const videoName = createEpisodeFilename(j);
         const episodeUrl = episodeList[j];
         const episodeDetailsPageHTML = await httpGet(episodeUrl);
 
@@ -185,13 +188,13 @@ const normalizeInputAnimeName = (animeName) => {
 
         if (videoSourceUrl) {
           await downloadAndSaveVideo(videoSourceUrl, videoName);
-          console.log("The video has been downloaded!");
+          console.log("The video has been downloaded!\n");
         }
       }
     }
 
     console.log(
-      "Your anime series has been downloaded & is ready to watch, enjoy!"
+      "\nYour anime series has been downloaded & is ready to watch, enjoy!\n"
     );
 
     process.exit(0);
