@@ -64,6 +64,6 @@ Anime title input examples:
   - [ ] desired season
 - [ ] add tests
 - [ ] typescript
-- [ ] organize code better (isolate helpers, extract logic)
+- [x] ~~organize code better (isolate helpers, extract logic)~~
 - [x] ~~remove Evangelion-specific naming in source~~
 - [ ] dockerize all the things
