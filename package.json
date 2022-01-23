@@ -4,8 +4,8 @@
   "description": "A cli tool to download your favorite anime series from gogoanimes",
   "main": "bin/index.js",
   "scripts": {
-    "test": "mocha --recursive './lib/**/test/*.js'",
-    "test:watch": "npm run test -- --growl false -w --watch-files ./lib/**/test/*.js ./lib/**/*.js"
+    "test": "mocha --recursive './lib/**/test/*.test.js'",
+    "test:watch": "npm run test -- --growl false -w --watch-files ./lib/**/test/*.test.js ./lib/**/*.js"
   },
   "bin": {
     "anime-dl": "./bin/index.js"
@@ -39,6 +39,6 @@
     "timeout": "2000",
     "ui": "bdd",
     "growl": true,
-    "inline-diffs": true
+    "inline-diffs": false
   }
 }
