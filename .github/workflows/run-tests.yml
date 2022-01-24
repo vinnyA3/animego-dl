@@ -12,7 +12,7 @@ jobs:
       - name: Step node
         uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node }} 
-          cache: 'npm'
-          - run: npm install
-          - run: npm run test
+          node-version: ${{ matrix.node }}
+          cache: "npm"
+      - run: npm install
+      - run: npm run test
