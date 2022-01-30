@@ -1,6 +1,6 @@
 {
   "name": "animego-dl",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A cli tool to download your favorite anime series from gogoanimes",
   "main": "bin/index.js",
   "scripts": {
