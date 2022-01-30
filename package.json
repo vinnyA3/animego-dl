@@ -32,7 +32,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",
-    "yargs": "^17.3.1"
+    "commander": "^9.0.0"
   },
   "devDependencies": {
     "mocha": "^9.1.4"
