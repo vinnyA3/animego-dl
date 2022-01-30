@@ -18,7 +18,12 @@ First, make sure you have the following installed on your machine:
 
 ## Installation
 
-**Steps**:
+Install from NPM - *recommended*:
+```sh
+npm install -g animego-dl # remove with: npm uninstall -g animego-dl
+```
+
+**Install from source**:
 1. Clone repo & `cd anime-series-dl`
 2. Install script dependencies: `node install`
 3. *optional* - install command globally:
@@ -40,7 +45,7 @@ Options:
 **note**: if you installed the package globally, you can simply run:
 
 ```sh
-anime-dl -d <destination dir> -n <anime series name>`
+animego-dl -d <destination dir> -n <anime series name>`
 ```
 
 If you did not install globally, you can run from the root of the project's source directory:
@@ -53,17 +58,5 @@ node .
 > formatted (improvements to tool will be made in the near future).
 
 Anime title input examples:
-  * specify dub: `anime-dl -d '<destination dir>' -n 'Berserk dub'`
+  * specify dub: `animego-dl -d '<destination dir>' -n 'Berserk dub'`
     - no params, no dashes
-
-## TODO
-
-- process cli arguments (remove hardcoded shit):
-  - [x] ~~accept series name~~
-  - [x] ~~download destination~~
-  - [ ] desired season
-- [ ] add tests
-- [ ] typescript
-- [x] ~~organize code better (isolate helpers, extract logic)~~
-- [x] ~~remove Evangelion-specific naming in source~~
-- [ ] dockerize all the things
