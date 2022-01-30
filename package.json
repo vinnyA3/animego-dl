@@ -10,6 +10,13 @@
   "bin": {
     "anime-dl": "./bin/index.js"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vinnyA3/anime-series-dl.git"
+  },
   "homepage": "https://github.com/vinnyA3/anime-series-dl#readme",
   "keywords": [
     "anime",
