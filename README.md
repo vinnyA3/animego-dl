@@ -6,9 +6,14 @@ Anime Series Downloader
 
 A simple node-based cli tool that downloads your desired anime series from `gogoanimes`.
 
-> :warning: Make sure that your input anime series name is propertly formatted.
-> I will add better input processing in the near future.  For examples of proper
-> series input, see [Usage](#usage)
+> :warning: Windows is not supported at this time.
+
+Table of Contents:
+* [Dependencies](#dependencies)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Contributing](#contributing)
+* [Disclaimer](#disclaimer)
 
 ## Dependencies
 
@@ -64,3 +69,15 @@ Anime title input examples:
     - please note we **do not** specify *dub* in the name -- this will be
       improved in the future
     - no special characters, params, or dashes
+
+## Contributing
+
+All contributions are welcome!  Please refer the [contributing document](CONTRIBUTING.md) for
+project practices and the Code of Conduct.
+
+## Disclaimer
+
+This project, and it's owner, does not endorse piracy!  Anime streaming services are
+supported both spiritually and financially :heart:
+
+This project uses anime information & sources that is 100% available to the public.
