@@ -59,4 +59,8 @@ node .
 
 Anime title input examples:
   * specify dub: `animego-dl -d '<destination dir>' -n 'Berserk dub'`
-    - no params, no dashes
+    - no special characters, params, or dashes
+  * specify sub: `animego-dl -d '<destination dir>' -n 'sono bisque doll wa koi wo suru'`
+    - please note we **do not** specify *dub* in the name -- this will be
+      improved in the future
+    - no special characters, params, or dashes
