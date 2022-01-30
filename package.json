@@ -1,5 +1,5 @@
 {
-  "name": "gogoanime-dl-cli",
+  "name": "anime-dl",
   "version": "1.0.0",
   "description": "A cli tool to download your favorite anime series from gogoanimes",
   "main": "bin/index.js",
