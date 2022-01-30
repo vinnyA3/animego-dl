@@ -8,7 +8,7 @@
     "test:watch": "npm run test -- --growl false -w --watch-files ./lib/**/test/*.test.js ./lib/**/*.js"
   },
   "bin": {
-    "anime-dl": "./bin/index.js"
+    "animego-dl": "./bin/index.js"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
