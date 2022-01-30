@@ -4,10 +4,6 @@ Anime Series Downloader
 <img src="./git-images/anime.png" alt="anime-doko" width="250" height="250">
 <br />
 
-> 💣 💥 ⚠️ It's become known that this will not work for recent animes.  Gogo changed their player scheme & how they
-> display their videos; as a result, this tool is broken at the moment.  A solution is in the works, so stay tuned.
-> Also, the tool does seem to still work for older animes -- I only personally tested Berserk & Neon Genesis.
-
 A simple node-based cli tool that downloads your desired anime series from `gogoanimes`.
 
 > :warning: Make sure that your input anime series name is propertly formatted.
