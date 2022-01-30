@@ -38,24 +38,28 @@ npm install -g animego-dl # remove with: npm uninstall -g animego-dl
 ## Usage
 
 ```sh
-Usage: -d <download destination> -n <anime name>
+Usage: animego-dl [options] <anime name>
+
+CLI tool to download your favorite anime series.
+
+Arguments:
+  anime name                The name of anime series to download  [string] [required]
 
 Options:
-      --help        Show help                                          [boolean]
-      --version     Show version number                                [boolean]
-  -d, --directory   Source directory for your anime download [string] [required]
-  -n, --anime-name  The title of your desired anime to download [string] [required]
+  -V, --version             output the version number
+  -d, --directory <string>  the download directory for your anime  [string] [required]
+  -h, --help                display help for command
 ```
 
 **note**: if you installed the package globally, you can simply run:
 
 ```sh
-animego-dl -d <destination dir> -n <anime series name>`
+animego-dl -d <destination dir> '<anime series name>'`
 ```
 
 If you did not install globally, you can run from the root of the project's source directory:
 ```
-node .
+node bin -d <destination dir> '<anime series name>'`
 ```
 ---
 
@@ -63,9 +67,9 @@ node .
 > formatted (improvements to tool will be made in the near future).
 
 Anime title input examples:
-  * specify dub: `animego-dl -d '<destination dir>' -n 'Berserk dub'`
+  * specify dub: `animego-dl -d '<destination dir>' 'Berserk dub'`
     - no special characters, params, or dashes
-  * specify sub: `animego-dl -d '<destination dir>' -n 'sono bisque doll wa koi wo suru'`
+  * specify sub: `animego-dl -d '<destination dir>' 'sono bisque doll wa koi wo suru'`
     - please note we **do not** specify *dub* in the name -- this will be
       improved in the future
     - no special characters, params, or dashes

@@ -1,29 +1,36 @@
 #!/usr/bin/env node
 
-const yargs = require("yargs");
+const { Command } = require("commander");
 
 const AnimeDL = require("../lib/anime-dl");
 const checkExecutableSync = require("../lib/check-executable");
+const {
+  cliInput: { validateDirectoryLocation, validateAnimeName },
+} = require("../lib/utils");
 
-const cliOptions = yargs
-  .usage("Usage: -d <download destination> -n <anime name>")
-  .option("d", {
-    alias: "directory",
-    describe: "Source directory for your anime download",
-    type: "string",
-    demandOption: true,
-  })
-  .option("n", {
-    alias: "anime-name",
-    describe: "The title of your desired anime to download",
-    type: "string",
-    demandOption: true,
-  }).argv;
+const program = new Command()
+  .name("animego-dl")
+  .description("CLI tool to download your favorite anime series.")
+  .version("2.0.0")
+  .requiredOption(
+    "-d, --directory <string>",
+    "the download directory for your anime  [string] [required]",
+    validateDirectoryLocation
+  )
+  .argument(
+    "<anime name>",
+    "The name of anime series to download  [string] [required]",
+    validateAnimeName
+  );
 
-// check for 3rd-party executables existence
+const parsedCliOptions = program.parse();
+
 if (checkExecutableSync("yt-dlp")) {
-  // Initialize
-  AnimeDL(cliOptions)
+  const { directory } = parsedCliOptions.opts();
+  const [animeName] = parsedCliOptions.args;
+
+  // initialize
+  AnimeDL({ directory, animeName })
     .then((successMessage) => {
       console.log(successMessage);
       process.exit(0);
