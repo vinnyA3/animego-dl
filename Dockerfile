@@ -4,7 +4,6 @@ WORKDIR /app
 
 RUN wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp 
 RUN chmod a+rx /usr/local/bin/yt-dlp 
-RUN python3 -m pip install -U yt-dlp 
 RUN curl -sL https://deb.nodesource.com/setup_14.x 
 RUN apt-get update 
 RUN apt-get install -y nodejs \
