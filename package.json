@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "description": "A cli tool to download your favorite anime series from gogoanimes",
   "scripts": {
-    "test": "mocha --recursive './lib/**/test/*.test.js'",
-    "test:watch": "npm run test -- --growl false -w --watch-files ./lib/**/test/*.test.js ./lib/**/*.js",
+    "test": "",
+    "test:watch": "",
     "build": "npm run tsc && npm run test",
     "clean": "rm -rf dist",
     "refresh": "rm -rf node_modules && rm -rf dist && rm package-lock.json && npm install",
