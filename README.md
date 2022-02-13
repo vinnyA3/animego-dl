@@ -13,6 +13,8 @@ Table of Contents:
 * [Installation](#installation)
 * [Usage](#usage)
 * [Contributing](#contributing)
+* [Development](#development)
+  - [Testing](#testing)
 * [Disclaimer](#disclaimer)
 
 ## Dependencies
@@ -28,12 +30,13 @@ Install from NPM - *recommended*:
 npm install -g animego-dl # remove with: npm uninstall -g animego-dl
 ```
 
-**Install from source**:
-1. Clone repo & `cd anime-series-dl`
-2. Install script dependencies: `node install`
-3. *optional* - install command globally:
+Install from source:
+1. Clone repo & `cd animego-dl`
+2. Install script dependencies: `npm install`
+3. Compile Typescript source: `npm run build`
+4. *optional* - install command globally:
     * `npm install -g .`
-    * to uninstall: `npm uninstall -g gogoanime-dl-cli`
+    * to uninstall: `npm uninstall -g animego-dl`
 
 ## Usage
 
@@ -57,9 +60,9 @@ Options:
 animego-dl -d <destination dir> '<anime series name>'`
 ```
 
-If you did not install globally, you can run from the root of the project's source directory:
+If you did not install globally & installed from source, you can run the following from the root of the project:
 ```
-node bin -d <destination dir> '<anime series name>'`
+node ./dist/bin -d <destination dir> '<anime series name>'`
 ```
 ---
 
@@ -79,9 +82,32 @@ Anime title input examples:
 All contributions are welcome!  Please refer the [contributing document](CONTRIBUTING.md) for
 project practices and the Code of Conduct.
 
+## Development
+
+The project is built with [Typescript](https://www.typescriptlang.org/).  To
+compile the source into working JavaScript, you can run:
+```bash
+npm run build
+```
+
+The aforementioned will compile to `/dist`.  For here, you can execute the
+program with:
+```bash
+node ./dist/bin -d <destination dir> '<anime series name>'
+```
+
+### Testing
+
+To run local tests: `npm run test`
+
+To run tests in watch mode: `npm run test:watch`
+
+> :warning: Tests are few and far between at the moment.  In fact, no test
+> suites are live at this time - 2/13/22.
+
 ## Disclaimer
 
 This project, and it's owner, does not endorse piracy!  Anime streaming services are
-supported both spiritually and financially :heart:
+:100:% supported!
 
-This project uses anime information & sources that is 100% available to the public.
+`animego-dl` uses anime information & sources that is fully available to the public.

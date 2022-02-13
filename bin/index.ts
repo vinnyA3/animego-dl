@@ -1,12 +1,13 @@
 #!/usr/bin/env node
+import { Command } from "commander";
 
-const { Command } = require("commander");
+import AnimeDL from "../lib/anime-dl";
+import checkExecutableSync from "../lib/check-executable";
+import utils from "../lib/utils";
 
-const AnimeDL = require("../lib/anime-dl");
-const checkExecutableSync = require("../lib/check-executable");
 const {
   cliInput: { validateDirectoryLocation, validateAnimeName },
-} = require("../lib/utils");
+} = utils;
 
 const program = new Command()
   .name("animego-dl")
@@ -25,10 +26,10 @@ const program = new Command()
 
 const parsedCliOptions = program.parse();
 
-if (checkExecutableSync("yt-dlp")) {
-  const { directory } = parsedCliOptions.opts();
-  const [animeName] = parsedCliOptions.args;
+const { directory } = parsedCliOptions.opts();
+const [animeName] = parsedCliOptions.args;
 
+if (checkExecutableSync("yt-dlp")) {
   // initialize
   AnimeDL({ directory, animeName })
     .then((successMessage) => {
