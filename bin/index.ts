@@ -12,7 +12,7 @@ const {
 const program = new Command()
   .name("animego-dl")
   .description("CLI tool to download your favorite anime series.")
-  .version("3.0.0")
+  .version("3.1.0")
   .requiredOption(
     "-d, --directory <string>",
     "the download directory for your anime  [string] [required]",
