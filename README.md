@@ -1,17 +1,22 @@
-Anime Series Downloader
+AnimeGo-DL
 =======================
 
-<img src="./git-images/anime.png" alt="anime-doko" width="250" height="250">
-<br />
-
-A simple node-based cli tool that downloads your desired anime series from `gogoanimes`.
+A simple node-based cli tool that downloads your desired anime series from `gogoanimes`!
 
 > :warning: Windows is not supported at this time.
 
-Table of Contents:
+---
+
+<img src="./.github/readme-images/a.png" alt="anime-doko" width="250" height="250">
+<br />
+
+**Table of Contents**:
 * [Dependencies](#dependencies)
 * [Installation](#installation)
 * [Usage](#usage)
+  - [Downloaded output examples](#output)
+  - [Dub](#dub)
+  - [Sub](#sub)
 * [Contributing](#contributing)
 * [Development](#development)
   - [Testing](#testing)
@@ -25,10 +30,12 @@ First, make sure you have the following installed on your machine:
 
 ## Installation
 
-Install from NPM - *recommended*:
+Install from [NPM](https://www.npmjs.com/package/animego-dl) - *recommended*:
 ```sh
 npm install -g animego-dl # remove with: npm uninstall -g animego-dl
 ```
+
+\- *or* -
 
 Install from source:
 1. Clone repo & `cd animego-dl`
@@ -57,24 +64,53 @@ Options:
 **note**: if you installed the package globally, you can simply run:
 
 ```sh
-animego-dl -d <destination dir> '<anime series name>'`
+animego-dl -d ./my-anime-directory '<anime series name>'`
 ```
 
 If you did not install globally & installed from source, you can run the following from the root of the project:
 ```
-node ./dist/bin -d <destination dir> '<anime series name>'`
+node ./dist/bin -d ./my-anime-directory '<anime series name>'`
 ```
+
+---
+
+### Output
+
+The anime, of your choosing, will be downloaded to the directory that you
+specfied at the `-d` option's argument.  A directory of the anime will be
+created and named like: `Neon Genesis Evangelion (Dub) (1995)/`.  Each episode will be
+numbered & named like: `episode-00.mp4`, `episode-01.mp4` .. etc.
+
+Example:
+```
+my-anime
+└── Neon\ Genesis\ Evangelion\ (Dub)\ (1995)
+    └── episode-01.mp4
+    └── episode-02.mp4
+    └── episode-03.mp4
+    └── episode-04.mp4
+
+```
+
 ---
 
 > :warning: Please make sure that your input anime series title is properly
 > formatted (improvements to tool will be made in the near future).
 
-Anime title input examples:
-  * specify dub: `animego-dl -d '<destination dir>' 'Berserk dub'`
+### Dub
+
+You can specify a dub selection by suffixing your anime name with 'dub'.
+
+Example(s):
+  * specify dub: `animego-dl -d ./my-anime-directory 'Berserk dub'`
     - no special characters, params, or dashes
-  * specify sub: `animego-dl -d '<destination dir>' 'sono bisque doll wa koi wo suru'`
-    - please note we **do not** specify *dub* in the name -- this will be
-      improved in the future
+
+### Sub
+
+Sub versions can be downloaded by providing just the title of the desired anime.
+
+Examples:
+  * specify sub: `animego-dl -d ./my-anime-directory 'sono bisque doll wa koi wo suru'`
     - no special characters, params, or dashes
 
 ## Contributing
@@ -93,7 +129,7 @@ npm run build
 The aforementioned will compile to `/dist`.  For here, you can execute the
 program with:
 ```bash
-node ./dist/bin -d <destination dir> '<anime series name>'
+node ./dist/bin -d ./my-anime-directory '<anime series name>'
 ```
 
 ### Testing
