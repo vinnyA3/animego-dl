@@ -1,8 +1,9 @@
 AnimeGo-DL
+=======================
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+![NPM Latest](https://img.shields.io/npm/v/animego-dl/latest?style=flat-square)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
-=======================
 
 A simple node-based cli tool that downloads your desired anime series from `gogoanimes`!
 
@@ -20,6 +21,7 @@ A simple node-based cli tool that downloads your desired anime series from `gogo
   - [Downloaded output examples](#output)
   - [Dub](#dub)
   - [Sub](#sub)
+  - [Docker](#docker)
 * [Contributing](#contributing)
 * [Development](#development)
   - [Testing](#testing)
@@ -40,11 +42,19 @@ npm install -g animego-dl # remove with: npm uninstall -g animego-dl
 
 \- *or* -
 
+
+Install with Docker:
+* Pull the [latest](https://hub.docker.com/r/vinnya3/animego-dl) docker image: `docker pull vinnya3/animego-dl`
+* Please refer to [Usage](#docker) for running w/ Docker.
+
+\- *or* -
+
 Install from source:
-1. Clone repo & `cd animego-dl`
-2. Install script dependencies: `npm install`
-3. Compile Typescript source: `npm run build`
-4. *optional* - install command globally:
+1. Clone repo: `git clone https://github.com/vinnyA3/animego-dl.git`
+2. Change into the project directory: `cd animego-dl`
+3. Install script dependencies: `npm install`
+4. Compile Typescript source: `npm run build`
+5. *optional* - install command globally:
     * `npm install -g .`
     * to uninstall: `npm uninstall -g animego-dl`
 
@@ -116,10 +126,37 @@ Examples:
   * specify sub: `animego-dl -d ./my-anime-directory 'sono bisque doll wa koi wo suru'`
     - no special characters, params, or dashes
 
+### Docker
+
+First, make sure you installed the [Docker image](https://hub.docker.com/r/vinnya3/animego-dl).
+
+Next, create your desired mount directory -- this will be your machine's local
+directory, where the anime will be downloaded; for example: `mkdir ./anime`
+
+You can now start create the mount point & run the container:
+```
+docker run --rm -v ${PWD}/anime:/anime -it animego-dl /bin/bash
+```
+
+After running the aforementioned command, you will be directed to an interactive
+shell session.  From here, you can run the tool as instructed [here](#usage).
+
+:warning: **important note**: make sure the download directory, specified by the
+`-d` option is `/anime` -- this is the mount point specified inside of the
+container.  The actual download directory, on your host machine, is what you
+specified earlier (when running the container).
+
+Example(s):
+```
+#app> animego-dl -d /anime 'monster'
+```
+
 ## Contributing
 
 All contributions are welcome!  Please refer the [contributing document](CONTRIBUTING.md) for
 project practices and the Code of Conduct.
+
+Also, checkout the [list of the project's contributors](#contributors-)!
 
 ## Development
 
