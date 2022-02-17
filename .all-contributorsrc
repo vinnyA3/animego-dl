@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "mayanknoldus",
+      "name": "mayanknoldus",
+      "avatar_url": "https://avatars.githubusercontent.com/u/82813390?v=4",
+      "profile": "https://github.com/mayanknoldus",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "animego-dl",
+  "projectOwner": "vinnyA3",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
