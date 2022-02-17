@@ -11,7 +11,7 @@ A clear and concise description of what the issue is about.
 
 ## To Reproduce
 
-<!-- If this isn't a BUG issue, please write: N/A -->
+<!-- If this isn't a BUG issue, you can remove the below list and write: N/A -->
 
 * Platform/Environment: MacOS, Linux
 * Node Version: `<node version>`
@@ -23,7 +23,7 @@ A clear and concise description of what the issue is about.
 <!--
 Steps:
 
-Steps to reproduce here ....
+Steps to reproduce here (IF BUG) ....
 -->
 
 ## Files

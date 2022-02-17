@@ -11,11 +11,9 @@
 - [#1](#1)
 
 ## Motivation and Context
-
 <!--- Why is this change required? What problem does it solve? -->
 
 ## How To Test It?
-
 <!--- Please provide context for reviewers about how to test the PR
 
 For example:
@@ -24,12 +22,12 @@ For example:
  - Steps to reach view / reproduce issue
 -->
 
-**Environment:** `Linux` <!-- Linux, MacOS, Windows, Docker -->
-**Node Version:** `v16.13.1` <!-- node --version -->
-**YT-DLP Version:** `2021.12.27` <!-- yt-dlp --version -->
+* Environment: `Linux` <!--Linux, MacOS, Windows, Docker-->
+* Node Version: `v16.13.1` <!--node version-->
+* YT-DLP Version: `2021.12.27` <!--yt-dlp version-->
 
 **Steps**:
-<!-- Steps to test -->
+<!-- Steps on how to test -->
 
 ## Visual reference
 
@@ -54,7 +52,7 @@ For example:
 - [n/a] I have updated the documentation accordingly.
 -->
 
-- [ ] I have tested on a supported environment: ENTER_ENV_HERE - MacOS?, Linux?
+- [ ] I have tested on a supported environment: ENTER_ENV_HERE - MacOS, Linux
 - [ ] I have tested using the project's Node version: `v16.13.1`
 - [ ] I have added tests to cover my changes.
 - [ ] I have updated the documentation accordingly.

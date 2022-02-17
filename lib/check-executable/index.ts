@@ -1,22 +1,25 @@
-const fs = require("fs");
-// const path = require("path");
-const { execSync } = require("child_process");
+import * as fs from "fs";
+
+import { execSync } from "child_process";
+
+import utils from "../utils";
 
 const { accessSync } = fs;
 const FS_CONSTANTS = fs.constants || fs;
-
-const { isStringEmpty } = require("../utils/general");
+const {
+  general: { isStringEmpty },
+} = utils;
 
 /*
  * Most of the code seen here has been pulled, and
  * slightly refactored, from: https://github.com/mathisonian/command-exists/blob/master/lib/command-exists.js)
  */
 
-const sanitizeCommand = (command) => {
+const sanitizeCommand = (command: string): string => {
   let result = "";
 
   if (/[^A-Za-z0-9_\/:=-]/.test(command)) {
-    result = "'" + s.replace(/'/g, "'\\''") + "'";
+    result = "'" + command.replace(/'/g, "'\\''") + "'";
     result = command
       .replace(/^(?:'')+/g, "") // dedupe single-quote at the beginning
       .replace(/\\'''/g, "\\'"); // remove non-escaped single-quote -- if there are enclosed between 2 escaped
@@ -25,7 +28,7 @@ const sanitizeCommand = (command) => {
   return isStringEmpty(result) ? command : result;
 };
 
-const localExecutableSync = (command) => {
+const localExecutableSync = (command: string): boolean => {
   try {
     accessSync(command, FS_CONSTANTS.F_OK | FS_CONSTANTS.X_OK);
     return true;
@@ -34,7 +37,7 @@ const localExecutableSync = (command) => {
   }
 };
 
-const fileNotExistsSync = (command) => {
+const fileNotExistsSync = (command: string): boolean => {
   try {
     accessSync(command, FS_CONSTANTS.F_OK);
     return false;
@@ -43,7 +46,10 @@ const fileNotExistsSync = (command) => {
   }
 };
 
-const commandExistsUnixSync = (command, sanitizedCommand) => {
+const commandExistsUnixSync = (
+  command: string,
+  sanitizedCommand: string
+): boolean => {
   if (fileNotExistsSync(command)) {
     try {
       const stdout = execSync(
@@ -63,7 +69,7 @@ const commandExistsUnixSync = (command, sanitizedCommand) => {
   return localExecutableSync(command);
 };
 
-module.exports = (command) => {
+export default (command: string): boolean => {
   const sanitizedCommandName = sanitizeCommand(command);
   return commandExistsUnixSync(command, sanitizedCommandName);
 };
