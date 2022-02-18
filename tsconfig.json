@@ -3,7 +3,8 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
+    "esModuleInterop": true,
     "strict": true,
     "baseUrl": ".",
     "paths": {

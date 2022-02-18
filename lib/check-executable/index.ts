@@ -18,7 +18,7 @@ const {
 const sanitizeCommand = (command: string): string => {
   let result = "";
 
-  if (/[^A-Za-z0-9_\/:=-]/.test(command)) {
+  if (/[^A-Za-z0-9_/:=-]/.test(command)) {
     result = "'" + command.replace(/'/g, "'\\''") + "'";
     result = command
       .replace(/^(?:'')+/g, "") // dedupe single-quote at the beginning

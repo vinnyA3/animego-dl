@@ -5,24 +5,30 @@ interface ResponseHeadersWithLocation extends http.IncomingHttpHeaders {
   location: string;
 }
 
-type ClientProtocols = "http" | "https";
-type ClientTypeOf = typeof http | typeof https;
+type Protocols = "http" | "https";
+type ClientType = typeof http | typeof https;
+type EmptyOptions = Record<string, unknown>;
 
-const Clients: { [k in ClientProtocols]: ClientTypeOf } = {
+const Clients: { [k in Protocols]: ClientType } = {
   http,
   https,
 };
 
+const RedirectCodesMap: { [k in string]: number } = {
+  "301": 301,
+  "302": 302,
+};
+
 const noop = () => {};
 
-const chooseClient = (url: string): ClientTypeOf => {
+const chooseClient = (url: string): ClientType => {
   const reProtocolMatch = /(https?):\/\//gi;
   const matchResult = url.match(reProtocolMatch) || [];
-  let protocolScheme: ClientProtocols = "https";
+  let protocolScheme: Protocols = "https";
 
   if (matchResult.length) {
     protocolScheme = (matchResult[0].split(":")[0] ||
-      protocolScheme) as ClientProtocols;
+      protocolScheme) as Protocols;
   }
 
   return Clients[protocolScheme];
@@ -36,15 +42,14 @@ const getOriginHeadersWithLocation = (
       | PromiseLike<ResponseHeadersWithLocation>
   ) => void,
   reject: (reason?: string | undefined) => void,
-  options: http.RequestOptions | {}
+  options: http.RequestOptions | EmptyOptions
 ) => {
-  const client = chooseClient(url) as unknown as typeof http;
+  const client = chooseClient(url) as unknown as ClientType;
 
   client
     .get(url, options, (res) => {
       const redirectCode =
-        res.statusCode != null &&
-        (res.statusCode === 301 || res.statusCode === 302);
+        res.statusCode != null && RedirectCodesMap[res.statusCode];
 
       if (redirectCode) {
         return getOriginHeadersWithLocation(
@@ -65,15 +70,14 @@ const get = (
   url: string,
   resolve: (value: string | PromiseLike<string>) => void,
   reject: (reason?: string | undefined) => void,
-  options: http.RequestOptions | {}
+  options: http.RequestOptions | EmptyOptions
 ) => {
-  const client = chooseClient(url) as unknown as typeof http;
+  const client = chooseClient(url) as unknown as ClientType;
 
   client
     .get(url, options, (res) => {
       const redirectCode =
-        res.statusCode != null &&
-        (res.statusCode === 301 || res.statusCode === 302);
+        res.statusCode != null && RedirectCodesMap[res.statusCode];
 
       if (redirectCode) {
         return get(res.headers.location || "", resolve, reject, options);

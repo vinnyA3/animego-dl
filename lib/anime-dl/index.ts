@@ -1,6 +1,5 @@
 import * as fsP from "fs/promises";
-// eslint-disable-next-line
-const path = require("path"); // ignoring import lint, path only imported as common
+import path from "path";
 import cheerio from "cheerio";
 
 import utils from "../utils";

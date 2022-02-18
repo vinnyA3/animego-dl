@@ -53,7 +53,7 @@ const extractVideoMetadataFromDetailsPage = (
 ): VideoMetadata => {
   const $ = cheerio.load(pageHTML);
   const videoInfo = $(".anime_info_body");
-  let videoMetadata: VideoMetadata = {};
+  const videoMetadata: VideoMetadata = {};
 
   videoMetadata.title = videoInfo.find("h1").text();
 
@@ -76,14 +76,12 @@ const getEpisodeRangesFromDetailsPage = (pageHTML: string) => {
   const $ = cheerio.load(pageHTML);
   const episodePage = $("#episode_page");
   const episodeRanges = episodePage.find("li");
-  let extractedRanges: EpisodeRange[] = [];
+  const extractedRanges: EpisodeRange[] = [];
 
   episodeRanges.each(function () {
     const range = $(this).find("a").text();
     const bounds = range.split("-");
-    const [lowerBound, upperBound] = bounds;
-    const normalizedLowerBound = stripNewlinesAndSpacesToNum(lowerBound);
-    const normalizedUpperBound = stripNewlinesAndSpacesToNum(upperBound);
+    const [start, end] = bounds.map(stripNewlinesAndSpacesToNum);
 
     extractedRanges.push(
       bounds.length === 1
@@ -92,8 +90,8 @@ const getEpisodeRangesFromDetailsPage = (pageHTML: string) => {
             end: 1,
           }
         : {
-            start: normalizedLowerBound === 0 ? 1 : normalizedLowerBound,
-            end: normalizedUpperBound,
+            start: start === 0 ? 1 : start,
+            end,
           }
     );
   });
