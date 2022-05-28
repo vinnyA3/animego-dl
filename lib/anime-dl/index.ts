@@ -3,7 +3,10 @@ import path from "path";
 import cheerio from "cheerio";
 
 import utils from "../utils";
+import { GOGO_ROOT } from "../constants/urls";
+
 import processingUtils from "./processing";
+import locales from "./locales";
 
 const { mkdir: mkdirAsync } = fsP;
 const {
@@ -19,11 +22,7 @@ const {
   parseSourcesAndGetVideo,
 } = processingUtils;
 
-export const Constants = {
-  GOGO_ROOT_ROOT: "https://gogoanime.cm",
-};
-
-const is404 = (pageHTML: string): boolean => {
+const has404 = (pageHTML: string): boolean => {
   const $ = cheerio.load(pageHTML);
   const entryTitle = $(".entry-title");
   return entryTitle && entryTitle.text() === "404";
@@ -34,8 +33,8 @@ const normalizeInputAnimeName = (animeName: string): string => {
   return animeName.toLowerCase().replace(re, "-");
 };
 
-const createEpisodeFilename = (index: number): string =>
-  `episode-${index < 10 ? "0" + index : index}`;
+const detailsEmptyOr404 = (pageHTML: string): boolean =>
+  isStringEmpty(pageHTML) || has404(pageHTML);
 
 export default async function initialize(cliOptions: {
   directory: string;
@@ -43,22 +42,21 @@ export default async function initialize(cliOptions: {
 }) {
   const saveLocation = cliOptions.directory;
   const normalizedAnimeName = normalizeInputAnimeName(cliOptions.animeName);
-  const { location: BASE_URL } = await getOriginHeadersWithLocation(
-    Constants.GOGO_ROOT_ROOT
+  const { location: BASE_URL } = await getOriginHeadersWithLocation(GOGO_ROOT);
+
+  const seriesBaseUrl = locales.generateSeriesBaseUrl(
+    BASE_URL,
+    normalizedAnimeName
   );
 
-  const seriesBaseUrl = `${BASE_URL}category/${normalizedAnimeName}`;
   const seriesDetailsPageHTML = await httpGet(seriesBaseUrl);
 
-  if (isStringEmpty(seriesDetailsPageHTML)) {
-    throw new Error("Failed to scrape for title details page!");
-  }
-
-  if (is404(seriesDetailsPageHTML)) {
-    throw new Error("Title not found!");
+  if (detailsEmptyOr404(seriesDetailsPageHTML)) {
+    return locales.errors.detailsPageProcessing;
   }
 
   const episodeRanges = getEpisodeRangesFromDetailsPage(seriesDetailsPageHTML);
+
   const videoMetadata = extractVideoMetadataFromDetailsPage(
     seriesDetailsPageHTML
   );
@@ -67,20 +65,33 @@ export default async function initialize(cliOptions: {
   const seriesFolderName = `${title} (${releaseYear})`;
   const seriesTargetLocation = path.join(saveLocation, seriesFolderName);
 
-  // Asynchronously create series folder and set it to
-  // the current working directory
+  // Asynchronously create series folder and set it to the current working directory
   await mkdirAsync(seriesTargetLocation);
   process.chdir(seriesTargetLocation);
 
-  for (let i = 0; i < episodeRanges.length; i++) {
-    const { start: currentRangeStart, end: currentRangeEnd } = episodeRanges[i];
+  for (
+    let currRangeIdx = 0;
+    currRangeIdx < episodeRanges.length;
+    currRangeIdx++
+  ) {
+    const { start: currentRangeStart, end: currentRangeEnd } =
+      episodeRanges[currRangeIdx];
 
-    for (let j = currentRangeStart; j <= currentRangeEnd; j++) {
-      const episodeUrl = `${BASE_URL}${normalizedAnimeName}-episode-${j}`;
+    for (
+      let currentEpisodeCount = currentRangeStart;
+      currentEpisodeCount <= currentRangeEnd;
+      currentEpisodeCount++
+    ) {
+      const episodeUrl = locales.generateEpisodeUrl(
+        BASE_URL,
+        normalizedAnimeName,
+        currentEpisodeCount
+      );
+
       const episodePage = await httpGet(episodeUrl);
       const decryptedVideoSources = await getSourcesAndDecrypt(episodePage);
       const videoSourceUrl = parseSourcesAndGetVideo(decryptedVideoSources);
-      const videoName = createEpisodeFilename(j);
+      const videoName = locales.createEpisodeFilename(currentEpisodeCount);
 
       if (videoSourceUrl) {
         console.info(`Now downloading: ${episodeUrl}\n`);
@@ -90,5 +101,5 @@ export default async function initialize(cliOptions: {
     }
   }
 
-  return "\nYour anime series has been downloaded & is ready to watch, enjoy!\n";
+  return locales.successfulDownload;
 }
