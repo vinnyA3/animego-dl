@@ -7,7 +7,9 @@ AnimeGo-DL
 
 A simple node-based cli tool that downloads your desired anime series from `gogoanimes`!
 
-> :warning: Windows is not supported at this time.
+> :bomb: :boom: **WE'RE BROKEN AT THE MOMENT** -- Gogoanime will no longer be
+> supported.  A refactor is currently in the works, so please check back soon!
+> :boom: :bomb:
 
 ---
 
@@ -28,6 +30,9 @@ A simple node-based cli tool that downloads your desired anime series from `gogo
 * [Disclaimer](#disclaimer)
 
 ## Dependencies
+
+> :warning: Sorry Windows users, things have been tested on Linux & MacOS only.  Support
+> might be coming soon.
 
 First, make sure you have the following installed on your machine:
 * [yt-dlp](https://github.com/yt-dlp/yt-dlp) - a youtube download fork with additional fixes and features.
@@ -102,7 +107,6 @@ my-anime
     └── episode-02.mp4
     └── episode-03.mp4
     └── episode-04.mp4
-
 ```
 
 ---
