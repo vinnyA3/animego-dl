@@ -4,6 +4,9 @@ import { createCipheriv } from "crypto";
 import cheerio from "cheerio";
 
 import utils from "../utils";
+import { GOGO_ENCRYPT_AJAX } from "../constants/urls";
+
+import locales from "./locales";
 
 const {
   general: { compose, stringToNum, removeMatchedPattern, safeJSONParse },
@@ -102,7 +105,7 @@ const getEpisodeRangesFromDetailsPage = (pageHTML: string) => {
 const downloadAndSaveVideo = (videoSourceUrl: string, videoName: string) =>
   new Promise((resolve, reject) => {
     if (!videoSourceUrl) {
-      return reject("Something went wrong: no video source was supplied!");
+      return reject(locales.errors.downloadAndSave);
     }
 
     try {
@@ -115,19 +118,14 @@ const downloadAndSaveVideo = (videoSourceUrl: string, videoName: string) =>
       ytDl.stdout.on("data", (buf) => console.log(buf.toString("utf8")));
       ytDl.on("close", reject);
       ytDl.on("exit", resolve);
-    } catch (e) {
-      // @ts-ignore
-      throw new Error(e);
+    } catch (err) {
+      throw err;
     }
   });
 
 const decryptVideoSourceUrl = async (encryptedSourceUrl: string) => {
   try {
-    if (!encryptedSourceUrl) {
-      throw new Error("Failed to retrieve video url from series details page!");
-    }
-
-    const ajaxEndpoint = "https://gogoplay.io/encrypt-ajax.php";
+    const ajaxEndpoint = GOGO_ENCRYPT_AJAX;
     const secret = Buffer.from(
       "3235373436353338353932393338333936373634363632383739383333323838",
       "hex"
@@ -155,8 +153,8 @@ const decryptVideoSourceUrl = async (encryptedSourceUrl: string) => {
     }
 
     return null;
-  } catch (error) {
-    throw Error(`Oops! Something went wrong: ${error}`);
+  } catch (err) {
+    throw err;
   }
 };
 
@@ -175,11 +173,11 @@ const getTargetVideoQualityFromSources = (
 
 const getSourcesAndDecrypt = compose(
   decryptVideoSourceUrl,
-  queryEpisodeDetailsPageForVideoSrc
+  queryEpisodeDetailsPageForVideoSrc // TODO: run control flow piping (ignore decryptVideoSourceUrl if empty src)
 );
 
 const parseSourcesAndGetVideo = compose(
-  getTargetVideoQualityFromSources,
+  getTargetVideoQualityFromSources, // TODO: run control flow piping (ignore this if empty parse result)
   safeJSONParse
 );
 

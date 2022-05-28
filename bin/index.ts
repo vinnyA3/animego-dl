@@ -32,8 +32,8 @@ const [animeName] = parsedCliOptions.args;
 if (checkExecutableSync("yt-dlp")) {
   // initialize
   AnimeDL({ directory, animeName })
-    .then((successMessage) => {
-      console.log(successMessage);
+    .then((message) => {
+      console.log(message);
       process.exit(0);
     })
     .catch((error) => {
