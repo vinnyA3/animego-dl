@@ -14,9 +14,9 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "outDir": "dist",
-    "typeRoots": ["/node_modules/@types"],
+    "typeRoots": ["./node_modules/@types"],
     "types": ["node", "mocha"]
   },
-  "include": ["lib/**/*", "./bin/**/*"],
+  "include": ["./lib", "./bin"],
   "exclude": ["node_modules", "git-images", "**/*.test.ts"]
 }
