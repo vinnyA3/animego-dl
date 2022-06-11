@@ -5,7 +5,7 @@
   "scripts": {
     "test": "",
     "test:watch": "",
-    "build": "npm run tsc && npm run test",
+    "build": "npm run clean && npm run tsc && npm run test",
     "clean": "rm -rf dist",
     "refresh": "rm -rf node_modules && rm -rf dist && rm package-lock.json && npm install",
     "lint": "eslint . --ext .ts",
