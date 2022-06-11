@@ -3,9 +3,8 @@ import { URL } from "url";
 import { createCipheriv } from "crypto";
 import cheerio from "cheerio";
 
-import utils from "../utils";
-import { GOGO_ENCRYPT_AJAX } from "../constants/urls";
-
+import utils from "./utils";
+import { GOGO_ENCRYPT_AJAX } from "./constants/urls";
 import locales from "./locales";
 
 const {
@@ -108,76 +107,63 @@ const downloadAndSaveVideo = (videoSourceUrl: string, videoName: string) =>
       return reject(locales.errors.downloadAndSave);
     }
 
-    try {
-      const ytDl = spawn("yt-dlp", [
-        "-o",
-        `${videoName}.%(ext)s`,
-        videoSourceUrl,
-      ]);
+    const ytDl = spawn("yt-dlp", [
+      "-o",
+      `${videoName}.%(ext)s`,
+      videoSourceUrl,
+    ]);
 
-      ytDl.stdout.on("data", (buf) => console.log(buf.toString("utf8")));
-      ytDl.on("close", reject);
-      ytDl.on("exit", resolve);
-    } catch (err) {
-      throw err;
-    }
+    ytDl.stdout.on("data", (buf) => console.log(buf.toString("utf8")));
+    ytDl.on("close", reject);
+    ytDl.on("exit", resolve);
   });
 
 const decryptVideoSourceUrl = async (encryptedSourceUrl: string) => {
-  try {
-    const ajaxEndpoint = GOGO_ENCRYPT_AJAX;
-    const secret = Buffer.from(
-      "3235373436353338353932393338333936373634363632383739383333323838",
-      "hex"
-    ); // aes256 require secret & iv in [hex]
-    const iv = Buffer.from("34323036393133333738303038313335", "hex");
-    const time = "69420691337800813569";
-    const matchResult = encryptedSourceUrl.match(/id=(.*)=?&token=/i);
+  const ajaxEndpoint = GOGO_ENCRYPT_AJAX;
+  const secret = Buffer.from(
+    "3235373436353338353932393338333936373634363632383739383333323838",
+    "hex"
+  ); // aes256 require secret & iv in [hex]
+  const iv = Buffer.from("34323036393133333738303038313335", "hex");
+  const time = "69420691337800813569";
+  const matchResult = encryptedSourceUrl.match(/id=(.*)=?&token=/i);
 
-    if (matchResult) {
-      const videoId = matchResult[1];
-      const cipher = createCipheriv("aes-256-cbc", secret, iv);
-      let encryptedId = "";
+  if (matchResult) {
+    const videoId = matchResult[1];
+    const cipher = createCipheriv("aes-256-cbc", secret, iv);
+    let encryptedId = "";
 
-      cipher.update(videoId, "binary");
-      encryptedId += cipher.final("base64");
+    cipher.update(videoId, "binary");
+    encryptedId += cipher.final("base64");
 
-      return await httpGet(
-        new URL(`${ajaxEndpoint}?id=${encryptedId}&time=${time}`).toString(),
-        {
-          headers: {
-            "x-requested-with": "XMLHttpRequest",
-          },
-        }
-      );
-    }
-
-    return null;
-  } catch (err) {
-    throw err;
+    return await httpGet(
+      new URL(`${ajaxEndpoint}?id=${encryptedId}&time=${time}`).toString(),
+      {
+        headers: {
+          "x-requested-with": "XMLHttpRequest",
+        },
+      }
+    );
   }
+
+  return null;
 };
 
 const getTargetVideoQualityFromSources = (
-  // @ts-ignore
   jsonVideoSourceList: GogoVideoSourceList
-  // TODO: get target quality as user input
-  // targetQuality = "best"
 ): string | undefined => {
   const clonedSourceList = [...jsonVideoSourceList.source];
   const defaultVideoRendition = clonedSourceList.pop();
-  // TODO: after processing user input (desired quality), add back & update
-  // const bestRendition = clonedSourceList[clonedSourceList.length - 1];
   return defaultVideoRendition?.file;
 };
 
 const getSourcesAndDecrypt = compose(
   decryptVideoSourceUrl,
-  queryEpisodeDetailsPageForVideoSrc // TODO: run control flow piping (ignore decryptVideoSourceUrl if empty src)
+  queryEpisodeDetailsPageForVideoSrc
 );
 
 const parseSourcesAndGetVideo = compose(
-  getTargetVideoQualityFromSources, // TODO: run control flow piping (ignore this if empty parse result)
+  getTargetVideoQualityFromSources,
   safeJSONParse
 );
 
