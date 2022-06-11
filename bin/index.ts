@@ -1,13 +1,18 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 
-import AnimeDL from "../lib/anime-dl";
-import checkExecutableSync from "../lib/check-executable";
-import utils from "../lib/utils";
+// @ts-ignore
+import lib from "../lib"; // TODO: gen type-defs
+
+// AnimeDL
+import AnimeDL from "../src";
+import utils from "../src/utils";
 
 const {
   cliInput: { validateDirectoryLocation, validateAnimeName },
 } = utils;
+
+const { checkExecutableSync } = lib;
 
 const program = new Command()
   .name("animego-dl")

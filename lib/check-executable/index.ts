@@ -2,13 +2,12 @@ import * as fs from "fs";
 
 import { execSync } from "child_process";
 
-import utils from "../utils";
-
 const { accessSync } = fs;
 const FS_CONSTANTS = fs.constants || fs;
-const {
-  general: { isStringEmpty },
-} = utils;
+
+const isStringEmpty = (str: string): boolean => {
+  return typeof str !== "string" || !str;
+};
 
 /*
  * Most of the code seen here has been pulled, and
@@ -32,7 +31,7 @@ const localExecutableSync = (command: string): boolean => {
   try {
     accessSync(command, FS_CONSTANTS.F_OK | FS_CONSTANTS.X_OK);
     return true;
-  } catch (e) {
+  } catch (_) {
     return false;
   }
 };
@@ -41,7 +40,7 @@ const fileNotExistsSync = (command: string): boolean => {
   try {
     accessSync(command, FS_CONSTANTS.F_OK);
     return false;
-  } catch (e) {
+  } catch (_) {
     return true;
   }
 };
@@ -66,6 +65,7 @@ const commandExistsUnixSync = (
       return false;
     }
   }
+
   return localExecutableSync(command);
 };
 

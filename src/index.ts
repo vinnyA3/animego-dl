@@ -2,11 +2,11 @@ import * as fsP from "fs/promises";
 import path from "path";
 import cheerio from "cheerio";
 
-import utils from "../utils";
-import { GOGO_ROOT } from "../constants/urls";
-
 import processingUtils from "./processing";
+
+import utils from "./utils";
 import locales from "./locales";
+import { GOGO_ROOT } from "./constants/urls";
 
 const { mkdir: mkdirAsync } = fsP;
 const {
