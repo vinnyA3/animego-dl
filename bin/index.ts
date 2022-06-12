@@ -8,16 +8,18 @@ import lib from "../lib"; // TODO: gen type-defs
 import AnimeDL from "../src";
 import utils from "../src/utils";
 
+import pkgJSON from "../package.json";
+
+const { checkExecutableSync } = lib;
+const { version: pkgVersion } = pkgJSON;
 const {
   cliInput: { validateDirectoryLocation, validateAnimeName },
 } = utils;
 
-const { checkExecutableSync } = lib;
-
 const program = new Command()
   .name("animego-dl")
   .description("CLI tool to download your favorite anime series.")
-  .version("3.1.0")
+  .version(pkgVersion)
   .requiredOption(
     "-d, --directory <string>",
     "the download directory for your anime  [string] [required]",
