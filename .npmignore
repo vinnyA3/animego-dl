@@ -1,0 +1,14 @@
+src/*
+lib/*
+bin/*
+
+.*eslint*
+tsconfig.json
+.nvmrc
+Dockerfile
+
+.all-contributorsrc
+.github/*
+
+CONTRIBUTING.md
+private-notes.md
