@@ -1,40 +1,30 @@
 import * as fsP from "fs/promises";
 import path from "path";
-import cheerio from "cheerio";
-
-import processingUtils from "./processing";
 
 import utils from "./utils";
 import locales from "./locales";
 import { GOGO_ROOT } from "./constants/urls";
 
+import processingUtils from "./processing";
+
 const { mkdir: mkdirAsync } = fsP;
 const {
-  general: { isStringEmpty },
   http: { httpGet, getOriginHeadersWithLocation },
 } = utils;
 
 const {
+  decryptAndGetVideoSources,
+  detailsEmptyOr404,
   extractVideoMetadataFromDetailsPage,
   getEpisodeRangesFromDetailsPage,
   downloadAndSaveVideo,
-  getSourcesAndDecrypt,
   parseSourcesAndGetVideo,
 } = processingUtils;
-
-const has404 = (pageHTML: string): boolean => {
-  const $ = cheerio.load(pageHTML);
-  const entryTitle = $(".entry-title");
-  return entryTitle && entryTitle.text() === "404";
-};
 
 const normalizeInputAnimeName = (animeName: string): string => {
   const re = /\s/gi;
   return animeName.toLowerCase().replace(re, "-");
 };
-
-const detailsEmptyOr404 = (pageHTML: string): boolean =>
-  isStringEmpty(pageHTML) || has404(pageHTML);
 
 export default async function initialize(cliOptions: {
   directory: string;
@@ -65,7 +55,6 @@ export default async function initialize(cliOptions: {
   const seriesFolderName = `${title} (${releaseYear})`;
   const seriesTargetLocation = path.join(saveLocation, seriesFolderName);
 
-  // Asynchronously create series folder and set it to the current working directory
   await mkdirAsync(seriesTargetLocation);
   process.chdir(seriesTargetLocation);
 
@@ -89,7 +78,10 @@ export default async function initialize(cliOptions: {
       );
 
       const episodePage = await httpGet(episodeUrl);
-      const decryptedVideoSources = await getSourcesAndDecrypt(episodePage);
+      const decryptedVideoSources = await decryptAndGetVideoSources(
+        episodePage
+      );
+
       const videoSourceUrl = parseSourcesAndGetVideo(decryptedVideoSources);
       const videoName = locales.createEpisodeFilename(currentEpisodeCount);
 

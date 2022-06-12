@@ -7,10 +7,6 @@ AnimeGo-DL
 
 A simple node-based cli tool that downloads your desired anime series from `gogoanimes`!
 
-> :bomb: :boom: **WE'RE BROKEN AT THE MOMENT** -- Gogoanime will no longer be
-> supported.  A refactor is currently in the works, so please check back soon!
-> :boom: :bomb:
-
 ---
 
 <img src="./.github/readme-images/a.png" alt="anime-doko" width="250" height="250">
