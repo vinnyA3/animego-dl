@@ -22,7 +22,7 @@ const isStringEmpty = (str: string): boolean => {
   return typeof str !== "string" || !str;
 };
 
-const safeJSONParse = (str: string): string | null => {
+const safeJSONParse = (str: string): Record<string, unknown> | null => {
   try {
     const result = JSON.parse(str);
     return result;
