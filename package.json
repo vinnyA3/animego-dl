@@ -9,7 +9,7 @@
     "clean": "rm -rf dist",
     "refresh": "rm -rf node_modules && rm -rf dist && rm package-lock.json && npm install",
     "lint": "eslint . --ext .ts",
-    "tsc": "tsc --build"
+    "tsc": "tsc --build && tsc-alias -p ./tsconfig.json"
   },
   "bin": {
     "animego-dl": "./dist/bin/index.js"
@@ -47,6 +47,7 @@
     "eslint-config-prettier": "^8.5.0",
     "mocha": "^9.1.4",
     "prettier": "^2.5.1",
+    "tsc-alias": "^1.6.11",
     "typescript": "^4.5.5"
   },
   "mocha": {

@@ -3,13 +3,18 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
+    "isolatedModules": true,
     "noUnusedLocals": true,
     "esModuleInterop": true,
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "*": ["lib/*"]
+      "*": ["src/*", "*"],
+      "@constants/*": ["src/constants/*"],
+      "@utils/*": ["src/utils/*"],
+      "@providers/*": ["src/providers/*"]
     },
     "removeComments": false,
     "preserveConstEnums": true,
@@ -18,6 +23,6 @@
     "typeRoots": ["./node_modules/@types"],
     "types": ["node", "mocha"]
   },
-  "include": ["./lib", "./bin"],
+  "include": ["./lib", "./bin", "./src"],
   "exclude": ["node_modules", "git-images", "**/*.test.ts"]
 }

@@ -1,22 +1,10 @@
 import { spawn } from "child_process";
-import { createCipheriv, createDecipheriv } from "crypto";
 import cheerio from "cheerio";
 
-import utils from "./utils";
-import { KK_SLIDER } from "./constants/urls";
-import { USER_AGENT } from "./constants/headers";
-import locales from "./locales";
+import utils from "@utils/index";
 
-const {
-  general: {
-    compose,
-    stringToNum,
-    removeMatchedPattern,
-    safeJSONParse,
-    isStringEmpty,
-  },
-  http: { httpGet },
-} = utils;
+import locales from "./locales";
+import extractors from "./extractors";
 
 interface VideoMetadata {
   title?: string;
@@ -41,6 +29,16 @@ interface GogoVideoSourceList {
   advertising: [];
   linkiframe: string;
 }
+
+const {
+  general: {
+    compose,
+    stringToNum,
+    removeMatchedPattern,
+    safeJSONParse,
+    isStringEmpty,
+  },
+} = utils;
 
 const stripNewlinesAndSpacesToNum: (s: string) => number = compose(
   stringToNum,
@@ -131,73 +129,19 @@ const downloadAndSaveVideo = (videoSourceUrl: string, videoName: string) =>
     ytDl.on("exit", resolve);
   });
 
-// TODO: refactor this monstrosity!!
-const decryptVideoSourceUrl = async (entryUrl: URL | null) => {
-  if (!entryUrl) {
-    return null;
-  }
-
-  const serverPageResponse = await httpGet(entryUrl.toString(), {
-    headers: { "User-Agent": USER_AGENT },
-  });
-
-  const embedId = entryUrl.searchParams.get("id");
-  const $ = cheerio.load(serverPageResponse);
-  const script = $("script[data-name='episode']").data().value;
-  const secrets = await httpGet(KK_SLIDER);
-  const parsedSecrets = JSON.parse(secrets);
-  const { iv, key, second_key: secondKey } = parsedSecrets;
-  const alg = "aes-256-cbc";
-
-  const cipher = createCipheriv(alg, key, iv); // encrypt ajax param id
-  const decipher = createDecipheriv(alg, key, iv); // decrypt token
-  const decipher2 = createDecipheriv(alg, secondKey, iv); // decrypt ajax return encrypted video source url
-
-  let token = "";
-  // @ts-ignore
-  token += decipher.update(script, "base64url", "utf-8");
-  token += decipher.final();
-
-  let encryptedKey = "";
-  // @ts-ignore
-  encryptedKey += cipher.update(embedId, "binary");
-  encryptedKey += cipher.final("base64");
-
-  const params = `id=${encryptedKey}&alias=${embedId}&token=${token}`;
-  const encAjaxEndpoint = `${entryUrl.protocol}//${entryUrl.hostname}/encrypt-ajax.php?${params}`;
-
-  const payload = await httpGet(encAjaxEndpoint, {
-    headers: {
-      "User-Agent": USER_AGENT,
-      "X-Requested-With": "XMLHttpRequest",
-    },
-  });
-
-  const encryptedSourceString = JSON.parse(payload);
-
-  let decryptedSources = "";
-
-  decryptedSources += decipher2.update(
-    encryptedSourceString.data,
-    "base64url",
-    "utf-8"
-  );
-
-  decryptedSources += decipher2.final();
-
-  return decryptedSources;
-};
-
 const getTargetVideoQualityFromSources = (
   jsonVideoSourceList: GogoVideoSourceList
 ): string | undefined => {
-  const clonedSourceList = [...jsonVideoSourceList.source];
+  const clonedSourceList = jsonVideoSourceList
+    ? [...jsonVideoSourceList.source]
+    : [];
+
   const defaultVideoRendition = clonedSourceList.pop();
   return defaultVideoRendition?.file;
 };
 
 const decryptAndGetVideoSources = compose(
-  decryptVideoSourceUrl,
+  extractors.extractAndDecryptSources,
   getEntryServerUrl
 );
 
