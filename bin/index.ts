@@ -11,15 +11,17 @@ import utils from "../src/utils";
 import pkgJSON from "../package.json";
 
 const { checkExecutableSync } = lib;
-const { version: pkgVersion } = pkgJSON;
+const { name: pkgName, version: pkgVersion } = pkgJSON;
 const {
   cliInput: { validateDirectoryLocation, validateAnimeName },
 } = utils;
 
+const versionOutput = `${pkgName} v${pkgVersion}`;
+
 const program = new Command()
   .name("animego-dl")
   .description("CLI tool to download your favorite anime series.")
-  .version(pkgVersion)
+  .version(`${versionOutput}`, "-v, --version", "output the current version")
   .requiredOption(
     "-d, --directory <string>",
     "the download directory for your anime  [string] [required]",
