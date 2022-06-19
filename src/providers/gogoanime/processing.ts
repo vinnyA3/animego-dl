@@ -1,20 +1,20 @@
-import { spawn } from "child_process";
-import cheerio from "cheerio";
+import * as fsP from "fs/promises";
+import path from "path";
+import { prompt } from "enquirer";
 
 import utils from "@utils/index";
+import { GOGO_ROOT } from "@constants/urls";
+import { BROWSER_HEADERS } from "@constants/headers";
 
 import locales from "./locales";
 import extractors from "./extractors";
-
-interface VideoMetadata {
-  title?: string;
-  releaseYear?: string;
-}
-
-interface EpisodeRange {
-  start: number;
-  end: number;
-}
+import {
+  selectResultPrompt,
+  inputAnimePrompt,
+  selectEpisodeFromRangePrompt,
+  trySearchAgainPrompt,
+  ResultAction,
+} from "./cli";
 
 interface GogoVideoSource {
   file: string;
@@ -30,118 +30,34 @@ interface GogoVideoSourceList {
   linkiframe: string;
 }
 
+const { mkdir: mkdirAsync } = fsP;
 const {
-  general: {
-    compose,
-    stringToNum,
-    removeMatchedPattern,
-    safeJSONParse,
-    isStringEmpty,
-  },
+  general: { compose, safeJSONParse, isStringEmpty },
+  http: { httpGet, getOriginHeadersWithLocation },
+  download: { downloadAndSaveVideo },
 } = utils;
 
-const stripNewlinesAndSpacesToNum: (s: string) => number = compose(
-  stringToNum,
-  removeMatchedPattern(/[\n\s]+/)
-);
-
-const detailsEmptyOr404 = (pageHTML: string): boolean => {
-  if (isStringEmpty(pageHTML)) {
-    return true;
-  }
-
-  const $ = cheerio.load(pageHTML);
-  const entryTitle = $(".entry-title");
-  return entryTitle && entryTitle.text() === "404";
-};
-
-const getEntryServerUrl = (pageHTML: string): URL | null => {
-  const $ = cheerio.load(pageHTML);
-  const serverUrl = $("#load_anime > div > div > iframe").attr("src");
-  return serverUrl ? new URL("http:" + serverUrl) : null;
-};
-
-const extractVideoMetadataFromDetailsPage = (
-  pageHTML: string
-): VideoMetadata => {
-  const $ = cheerio.load(pageHTML);
-  const videoInfo = $(".anime_info_body");
-  const videoMetadata: VideoMetadata = {};
-
-  videoMetadata.title = videoInfo.find("h1").text();
-
-  videoInfo.find("p").each(function () {
-    const type = $(this).find("span").text().toLowerCase();
-
-    if (type.includes("released")) {
-      const releaseYearProperty = $(this).text();
-      const releaseYear = releaseYearProperty.split(": ")[1];
-      videoMetadata.releaseYear = releaseYear;
-
-      return false;
-    }
-  });
-
-  return videoMetadata;
-};
-
-const getEpisodeRangesFromDetailsPage = (pageHTML: string) => {
-  const $ = cheerio.load(pageHTML);
-  const episodePage = $("#episode_page");
-  const episodeRanges = episodePage.find("li");
-  const extractedRanges: EpisodeRange[] = [];
-
-  episodeRanges.each(function () {
-    const range = $(this).find("a").text();
-    const bounds = range.split("-");
-    const [start, end] = bounds.map(stripNewlinesAndSpacesToNum);
-
-    extractedRanges.push(
-      bounds.length === 1
-        ? {
-            start: 1,
-            end: 1,
-          }
-        : {
-            start: start === 0 ? 1 : start,
-            end,
-          }
-    );
-  });
-
-  return extractedRanges;
-};
-
-const downloadAndSaveVideo = (videoSourceUrl: string, videoName: string) =>
-  new Promise((resolve, reject) => {
-    if (!videoSourceUrl) {
-      return reject(locales.errors.downloadAndSave);
-    }
-
-    const ytDl = spawn("yt-dlp", [
-      "-o",
-      `${videoName}.%(ext)s`,
-      videoSourceUrl,
-    ]);
-
-    ytDl.stdout.on("data", (buf) => console.log(buf.toString("utf8")));
-    ytDl.on("close", reject);
-    ytDl.on("exit", resolve);
-  });
+const {
+  extractAndDecryptSources,
+  detailsEmptyOr404,
+  getEntryServerUrl,
+  getSearchResults,
+  extractVideoMetadataFromDetailsPage,
+  getEpisodeRangesFromDetailsPage,
+} = extractors;
 
 const getTargetVideoQualityFromSources = (
   jsonVideoSourceList: GogoVideoSourceList
-): string | undefined => {
-  const clonedSourceList = jsonVideoSourceList
-    ? [...jsonVideoSourceList.source]
-    : [];
+): string => {
+  const defaultVideoRendition = (
+    jsonVideoSourceList ? [...jsonVideoSourceList.source] : []
+  ).pop();
 
-  const defaultVideoRendition = clonedSourceList.pop();
-  return defaultVideoRendition?.file;
+  return defaultVideoRendition?.file || "";
 };
 
 const decryptAndGetVideoSources = compose(
-  extractors.extractAndDecryptSources,
+  extractAndDecryptSources,
   getEntryServerUrl
 );
 
@@ -150,12 +66,166 @@ const parseSourcesAndGetVideo = compose(
   safeJSONParse
 );
 
+const getEpisodeRangesForSeries = async (seriesDetailsPageHTML: string) =>
+  detailsEmptyOr404(seriesDetailsPageHTML)
+    ? []
+    : getEpisodeRangesFromDetailsPage(seriesDetailsPageHTML);
+
+const normalizeInputAnimeName = (animeName: string): string =>
+  animeName.toLowerCase().replace(/\s/gi, "-");
+
+const downloadSeries = async (cliOptions: {
+  directory: string;
+  animeName: string;
+}) => {
+  const saveLocation = cliOptions.directory;
+  const normalizedAnimeName = normalizeInputAnimeName(cliOptions.animeName);
+  const { location: BASE_URL } = await getOriginHeadersWithLocation(GOGO_ROOT);
+
+  const seriesBaseUrl = locales.generateSeriesBaseUrl(
+    BASE_URL,
+    normalizedAnimeName
+  );
+
+  const seriesDetailsPageHTML = await httpGet(seriesBaseUrl, {
+    ...BROWSER_HEADERS,
+  });
+
+  const episodeRanges = await getEpisodeRangesForSeries(seriesDetailsPageHTML);
+
+  if (!episodeRanges || !episodeRanges.length) {
+    return locales.errors.detailsPageProcessing;
+  }
+
+  const videoMetadata = extractVideoMetadataFromDetailsPage(
+    seriesDetailsPageHTML
+  );
+
+  const { title, releaseYear } = videoMetadata;
+  const seriesFolderName = `${title} (${releaseYear})`;
+  const seriesTargetLocation = path.join(saveLocation, seriesFolderName);
+
+  await mkdirAsync(seriesTargetLocation);
+  process.chdir(seriesTargetLocation);
+
+  for (
+    let currRangeIdx = 0;
+    currRangeIdx < episodeRanges.length;
+    currRangeIdx++
+  ) {
+    const { start: currentRangeStart, end: currentRangeEnd } =
+      episodeRanges[currRangeIdx];
+
+    for (
+      let currentEpisodeCount = currentRangeStart;
+      currentEpisodeCount <= currentRangeEnd;
+      currentEpisodeCount++
+    ) {
+      const episodeUrl = locales.generateEpisodeUrl(
+        BASE_URL,
+        normalizedAnimeName,
+        currentEpisodeCount
+      );
+
+      const episodePage = await httpGet(episodeUrl, { ...BROWSER_HEADERS });
+      const decryptedVideoSources = await decryptAndGetVideoSources(
+        episodePage
+      );
+
+      const videoSourceUrl = parseSourcesAndGetVideo(decryptedVideoSources);
+      const videoName = locales.createEpisodeFilename(currentEpisodeCount);
+
+      if (videoSourceUrl) {
+        console.info(`Now downloading: ${episodeUrl}\n`);
+        await downloadAndSaveVideo(videoSourceUrl, videoName);
+        console.info("The video has been downloaded!\n");
+      }
+    }
+  }
+
+  return locales.successfulDownload;
+};
+
+const promptSearchAgain = async () =>
+  prompt([trySearchAgainPrompt]).then(
+    (res: { shouldSearchAgain?: boolean }) => res.shouldSearchAgain || false
+  );
+
+const searchAndDownloadEpisode = async (download?: boolean) => {
+  const { location: BASE_URL } = await getOriginHeadersWithLocation(GOGO_ROOT);
+  let shouldSearchForTitle = true;
+
+  do {
+    const { inputAnimeName }: { inputAnimeName: string } = await prompt(
+      inputAnimePrompt
+    );
+
+    if (isStringEmpty(inputAnimeName)) continue;
+
+    const results = await getSearchResults(inputAnimeName);
+    const searchResults = Object.keys(results) || [];
+
+    if (searchResults.length === 0) {
+      shouldSearchForTitle = await promptSearchAgain();
+      continue;
+    }
+
+    const theChosenOne = await prompt(
+      selectResultPrompt(
+        searchResults,
+        download ? ResultAction.Download : ResultAction.Stream
+      )
+    ).then((res: { chosenTitle?: string }) => res.chosenTitle || "");
+
+    if (isStringEmpty(theChosenOne)) {
+      shouldSearchForTitle = await promptSearchAgain();
+      continue;
+    }
+
+    const episodeRanges = await httpGet(results[theChosenOne]?.url || "", {
+      ...BROWSER_HEADERS,
+    })
+      .then(getEpisodeRangesForSeries)
+      .then((ranges) => {
+        ranges.forEach(({ start: curRangeStart, end: curRangeEnd }) =>
+          console.log(`Episodes: [${curRangeStart} - ${curRangeEnd}]`)
+        );
+
+        return ranges;
+      });
+
+    const selectedEpisodeNumber = await prompt(
+      selectEpisodeFromRangePrompt
+    ).then((res: { selectedEpisode?: number }) =>
+      res?.selectedEpisode ? Math.floor(res.selectedEpisode) : -1
+    );
+
+    if (
+      selectedEpisodeNumber >= episodeRanges[0].start &&
+      selectedEpisodeNumber <= episodeRanges[episodeRanges.length - 1].end
+    ) {
+      const videoSourceUrl = await httpGet(
+        locales.generateEpisodeUrl(
+          BASE_URL,
+          normalizeInputAnimeName(theChosenOne),
+          selectedEpisodeNumber
+        ),
+        {
+          ...BROWSER_HEADERS,
+        }
+      )
+        .then(decryptAndGetVideoSources)
+        .then(parseSourcesAndGetVideo);
+
+      return { title: theChosenOne, videoSourceUrl };
+    }
+
+    console.log("Episode not in range ...");
+    shouldSearchForTitle = await promptSearchAgain();
+  } while (shouldSearchForTitle);
+};
+
 export default {
-  decryptAndGetVideoSources,
-  detailsEmptyOr404,
-  extractVideoMetadataFromDetailsPage,
-  getEpisodeRangesFromDetailsPage,
-  getEntryServerUrl,
-  downloadAndSaveVideo,
-  parseSourcesAndGetVideo,
+  downloadSeries,
+  searchAndDownloadEpisode,
 };

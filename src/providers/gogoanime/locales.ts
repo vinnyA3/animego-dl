@@ -1,7 +1,6 @@
 const errors = {
   detailsPageProcessing:
     "Oops! Failed to scrape for the title's details page.  Either the title wasn't found, or something went wrong during initial metadata processing.  Please check your input title's name for errors.",
-  downloadAndSave: "No video source was supplied!",
 };
 
 export default {

@@ -1,14 +1,31 @@
 import { createCipheriv, createDecipheriv } from "crypto";
 import cheerio from "cheerio";
 
-import { USER_AGENT } from "@constants/headers";
+import { USER_AGENT, BROWSER_HEADERS } from "@constants/headers";
 import ENV_CONFIG from "@constants/environment";
+import { GOGO_ROOT, GOGO_BASE_SEARCH } from "@constants/urls";
 import utils from "@utils/index";
 
 const {
-  general: { safeJSONParse },
+  general: {
+    compose,
+    stringToNum,
+    removeMatchedPattern,
+    safeJSONParse,
+    isStringEmpty,
+  },
   http: { httpGet },
 } = utils;
+
+interface VideoMetadata {
+  title?: string;
+  releaseYear?: string;
+}
+
+interface EpisodeRange {
+  start: number;
+  end: number;
+}
 
 interface CryptInput {
   source: string;
@@ -22,11 +39,24 @@ interface RemoteSecrets {
   iv: string;
 }
 
+interface SearchItem {
+  id?: string | null;
+  title?: string | null;
+  url?: string | null;
+}
+
+type GogoSearchResults = { [key: string]: SearchItem } | Record<string, never>;
+
 const Constants = {
   algorithm: "aes-256-cbc",
 };
 
-export const aesEncrypt = ({ source, key, iv }: CryptInput) => {
+const stripNewlinesAndSpacesToNum: (s: string) => number = compose(
+  stringToNum,
+  removeMatchedPattern(/[\n\s]+/)
+);
+
+const aesEncrypt = ({ source, key, iv }: CryptInput) => {
   const cipher = createCipheriv(Constants.algorithm, key, iv);
   let encryptedKey = "";
 
@@ -36,7 +66,7 @@ export const aesEncrypt = ({ source, key, iv }: CryptInput) => {
   return encryptedKey;
 };
 
-export const aesDecrypt = ({ source, key, iv }: CryptInput) => {
+const aesDecrypt = ({ source, key, iv }: CryptInput) => {
   const decipher = createDecipheriv(Constants.algorithm, key, iv);
   let decryptedToken = "";
   // @ts-ignore
@@ -51,8 +81,9 @@ const extractAndDecryptSources = async (url: URL | null) => {
     return null;
   }
 
+  // TODO: this calls for keys each time .. should save it during runtime
   const serverPageResponse = await httpGet(url.toString(), {
-    headers: { "User-Agent": USER_AGENT },
+    ...BROWSER_HEADERS,
   });
 
   const embedId = url.searchParams.get("id");
@@ -96,6 +127,107 @@ const extractAndDecryptSources = async (url: URL | null) => {
   }
 };
 
+const detailsEmptyOr404 = (pageHTML: string): boolean => {
+  if (isStringEmpty(pageHTML)) {
+    return true;
+  }
+
+  const $ = cheerio.load(pageHTML);
+  const entryTitle = $(".entry-title");
+  return entryTitle && entryTitle.text() === "404";
+};
+
+const getEntryServerUrl = (pageHTML: string): URL | null => {
+  const $ = cheerio.load(pageHTML);
+  const serverUrl = $("#load_anime > div > div > iframe").attr("src");
+  return serverUrl ? new URL("http:" + serverUrl) : null;
+};
+
+const getSearchResults = async (userAnimeQuery: string, pageNumber = 1) => {
+  const targetPageHTML = await httpGet(
+    `${GOGO_BASE_SEARCH}?keyword=${userAnimeQuery}&page=${pageNumber}`,
+    {
+      ...BROWSER_HEADERS,
+    }
+  );
+
+  const $ = cheerio.load(targetPageHTML);
+  const results: GogoSearchResults = {};
+
+  $("div.last_episodes > ul > li").each((_, el) => {
+    const $element = $(el).find("p.name > a");
+    const $elementLink = $element.attr("href");
+
+    if ($element && $elementLink) {
+      const id = $elementLink?.split("/")[2];
+
+      results[id] = {
+        id,
+        title: $element.attr("title") || null,
+        url: $elementLink ? `${GOGO_ROOT}/${$elementLink}` : null,
+      };
+    }
+  });
+
+  return results;
+};
+
+const extractVideoMetadataFromDetailsPage = (
+  pageHTML: string
+): VideoMetadata => {
+  const $ = cheerio.load(pageHTML);
+  const videoInfo = $(".anime_info_body");
+  const videoMetadata: VideoMetadata = {};
+
+  videoMetadata.title = videoInfo.find("h1").text();
+
+  videoInfo.find("p").each(function () {
+    const type = $(this).find("span").text().toLowerCase();
+
+    if (type.includes("released")) {
+      const releaseYearProperty = $(this).text();
+      const releaseYear = releaseYearProperty.split(": ")[1];
+      videoMetadata.releaseYear = releaseYear;
+
+      return false;
+    }
+  });
+
+  return videoMetadata;
+};
+
+const getEpisodeRangesFromDetailsPage = (pageHTML: string) => {
+  const $ = cheerio.load(pageHTML);
+  const episodePage = $("#episode_page");
+  const episodeRanges = episodePage.find("li");
+  const extractedRanges: EpisodeRange[] = [];
+
+  episodeRanges.each(function () {
+    const range = $(this).find("a").text();
+    const bounds = range.split("-");
+    const [start, end] = bounds.map(stripNewlinesAndSpacesToNum);
+
+    extractedRanges.push(
+      bounds.length === 1
+        ? {
+            start: 1,
+            end: 1,
+          }
+        : {
+            start: start === 0 ? 1 : start,
+            end,
+          }
+    );
+  });
+
+  return extractedRanges;
+};
+
 export default {
   extractAndDecryptSources,
+  detailsEmptyOr404,
+  getEntryServerUrl,
+  getSearchResults,
+  extractVideoMetadataFromDetailsPage,
+  getEpisodeRangesFromDetailsPage,
 };
