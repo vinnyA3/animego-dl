@@ -31,10 +31,19 @@ const safeJSONParse = (str: string): Record<string, unknown> | null => {
   }
 };
 
+const isObjectEmpty = (obj: object): boolean => {
+  return (
+    obj &&
+    Object.keys(obj).length === 0 &&
+    Object.getPrototypeOf(obj) === Object.prototype
+  );
+};
+
 export default {
   compose,
   removeMatchedPattern,
   stringToNum,
   isStringEmpty,
+  isObjectEmpty,
   safeJSONParse,
 };

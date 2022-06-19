@@ -1,58 +1,27 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 
-// @ts-ignore
-import lib from "../lib"; // TODO: gen type-defs
-
 // AnimeDL
 import AnimeDL from "../src";
-import utils from "../src/utils";
-
 import pkgJSON from "../package.json";
 
-const { checkExecutableSync } = lib;
 const { name: pkgName, version: pkgVersion } = pkgJSON;
-const {
-  cliInput: { validateDirectoryLocation, validateAnimeName },
-} = utils;
-
 const versionOutput = `${pkgName} v${pkgVersion}`;
 
 const program = new Command()
   .name("animego-dl")
   .description("CLI tool to download your favorite anime series.")
   .version(`${versionOutput}`, "-v, --version", "output the current version")
-  .requiredOption(
-    "-d, --directory <string>",
-    "the download directory for your anime  [string] [required]",
-    validateDirectoryLocation
-  )
-  .argument(
-    "<anime name>",
-    "The name of anime series to download  [string] [required]",
-    validateAnimeName
-  );
+  .option("-d, --download", "choose to download your desired anime");
 
-const parsedCliOptions = program.parse();
+const cliOptions = program.opts();
+program.parse();
 
-const { directory } = parsedCliOptions.opts();
-const [animeName] = parsedCliOptions.args;
-
-if (checkExecutableSync("yt-dlp")) {
-  // initialize
-  AnimeDL({ directory, animeName })
-    .then((message) => {
-      console.log(message);
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error(error);
-      process.exit(1);
-    });
-} else {
-  console.log(
-    "\n'yt-dlp' is not in your executable $PATH!  Please make sure you have it installed."
-  );
-
-  process.exit(1);
-}
+AnimeDL(cliOptions)
+  .then((data) => {
+    data && console.log(data);
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
