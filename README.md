@@ -5,7 +5,7 @@ AnimeGo-DL
 ![NPM Latest](https://img.shields.io/npm/v/animego-dl/latest?style=flat-square)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-A simple node-based cli tool that downloads your desired anime series from `gogoanimes`!
+A *blazing fast* :rocket:  node-based cli tool that streams (or downloads) anime from `gogoanimes`!
 
 ---
 
@@ -16,10 +16,8 @@ A simple node-based cli tool that downloads your desired anime series from `gogo
 * [Dependencies](#dependencies)
 * [Installation](#installation)
 * [Usage](#usage)
-  - [Downloaded output examples](#output)
-  - [Dub](#dub)
-  - [Sub](#sub)
-  - [Docker](#docker)
+  - [Streaming](#streaming)
+  - [Downloading](#downloading)
 * [Contributing](#contributing)
 * [Development](#development)
   - [Testing](#testing)
@@ -62,71 +60,55 @@ Install from source:
 ## Usage
 
 ```sh
-Usage: animego-dl [options] <anime name>
+Usage: animego-dl [options]
 
 CLI tool to download your favorite anime series.
 
-Arguments:
-  anime name                The name of anime series to download  [string] [required]
-
 Options:
-  -V, --version             output the version number
-  -d, --directory <string>  the download directory for your anime  [string] [required]
-  -h, --help                display help for command
+  -v, --version   output the current version
+  -d, --download  choose to download your desired anime
+  -h, --help      display help for command
 ```
 
 **note**: if you installed the package globally, you can simply run:
 
 ```sh
-animego-dl -d ./my-anime-directory '<anime series name>'`
+animego-dl
 ```
 
-If you did not install globally & installed from source, you can run the following from the root of the project:
+If you did not install globally & installed from source (but do not want to link to your machine), you can run the following from the root of the project (after running `npm run build` - to compile from typescript):
 ```
-node ./dist/bin -d ./my-anime-directory '<anime series name>'`
+node ./dist/bin
 ```
+
+### Streaming
+
+To stream, just run the tool (`animego-dl`) and you're good to go!  You will
+prompted to search for you desired anime, then will be presented a range(s) of
+episode numbers to select from.  Using the CLI, input the episode number you
+wish to watch.
+
+> :notebook: The tool will try to spin up [MPV](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjU26PJnb34AhXAIzQIHbX9BqsQFnoECAkQAQ&url=https%3A%2F%2Fmpv.io%2F&usg=AOvVaw1b8_yCiS5ge8PPghViO-l-) by default.  If MPV isn't
+> detected, you'll receive the video source in the output -- you can use this
+> source, and plug into a stream client of your choice (more default player
+> support coming soon!)
+
+### Downloading
+
+To download an anime episode, pass the `-d` option when starting the tool:
+```bash
+animego-dl -d
+```
+
+Next, search & select the episode you'd like to download via the cli.  Enjoy!
+
+> :warning: The tool will download to your current working directory (where you
+> ran the command), and under a directory named `animego-dl` -- options to
+> choose your destination directory will be added soon!
 
 ---
 
-### Output
-
-The anime, of your choosing, will be downloaded to the directory that you
-specfied at the `-d` option's argument.  A directory of the anime will be
-created and named like: `Neon Genesis Evangelion (Dub) (1995)/`.  Each episode will be
-numbered & named like: `episode-00.mp4`, `episode-01.mp4` .. etc.
-
-Example:
-```
-my-anime
-└── Neon\ Genesis\ Evangelion\ (Dub)\ (1995)
-    └── episode-01.mp4
-    └── episode-02.mp4
-    └── episode-03.mp4
-    └── episode-04.mp4
-```
-
----
-
-> :warning: Please make sure that your input anime series title is properly
-> formatted (improvements to tool will be made in the near future).
-
-### Dub
-
-You can specify a dub selection by suffixing your anime name with 'dub'.
-
-Example(s):
-  * specify dub: `animego-dl -d ./my-anime-directory 'Berserk dub'`
-    - no special characters, params, or dashes
-
-### Sub
-
-Sub versions can be downloaded by providing just the title of the desired anime.
-
-Examples:
-  * specify sub: `animego-dl -d ./my-anime-directory 'sono bisque doll wa koi wo suru'`
-    - no special characters, params, or dashes
-
-### Docker
+## Docker
 
 First, make sure you installed the [Docker image](https://hub.docker.com/r/vinnya3/animego-dl).
 
@@ -169,10 +151,10 @@ npm run build
 The aforementioned will compile to `/dist`.  For here, you can execute the
 program with:
 ```bash
-node ./dist/bin -d ./my-anime-directory '<anime series name>'
+node ./dist/bin
 ```
 
-### Testing
+## Testing
 
 To run local tests: `npm run test`
 
