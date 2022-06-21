@@ -2,16 +2,22 @@ import { spawn } from "child_process";
 
 import locales from "../locales";
 
-const downloadAndSaveVideo = (videoSourceUrl: string, videoName: string) =>
+const downloadAndSaveVideo = (
+  source: string,
+  location: string,
+  videoName: string
+) =>
   new Promise((resolve, reject) => {
-    if (!videoSourceUrl) {
+    if (!source) {
       return reject(locales.errors.downloadAndSave);
     }
 
     const ytDl = spawn("yt-dlp", [
+      "-P",
+      location,
       "-o",
       `${videoName}.%(ext)s`,
-      videoSourceUrl,
+      source,
     ]);
 
     ytDl.stdout.on("data", (buf) => console.log(buf.toString("utf8")));

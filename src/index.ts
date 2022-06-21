@@ -29,7 +29,7 @@ const ytDLPDownload = async (
   if (checkExecutableSync("yt-dlp")) {
     process.cwd();
     await mkdirAsync(location, { recursive: true });
-    await downloadAndSaveVideo(source, name);
+    await downloadAndSaveVideo(source, location, name);
     return locales.downloadSuccess(name);
   }
 
@@ -38,18 +38,23 @@ const ytDLPDownload = async (
 
 const init = async (cliOptions: { download?: boolean }) => {
   const { download: shouldDownload } = cliOptions;
-  const resultPayload = await Gogoanime.processing.searchAndDownloadEpisode(
+  const result = await Gogoanime.processing.searchAndDownloadEpisode(
     shouldDownload
   );
 
-  if (!(resultPayload?.videoSourceUrl && resultPayload?.title)) {
+  if (!(result?.videoSourceUrl && result?.title && result?.episodeNumber)) {
     return errorLocales.couldNotExtractVideo;
   }
 
-  const { videoSourceUrl, title } = resultPayload;
+  const { videoSourceUrl, title, episodeNumber } = result;
 
   if (shouldDownload) {
-    ytDLPDownload(path.join("./animego-dl", title), videoSourceUrl, title);
+    ytDLPDownload(
+      path.join("./animego-dl", title),
+      videoSourceUrl,
+      `episode-${episodeNumber}`
+    );
+
     return;
   }
 

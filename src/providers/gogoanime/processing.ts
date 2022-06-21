@@ -137,7 +137,12 @@ const downloadSeries = async (cliOptions: {
 
       if (videoSourceUrl) {
         console.info(`Now downloading: ${episodeUrl}\n`);
-        await downloadAndSaveVideo(videoSourceUrl, videoName);
+        await downloadAndSaveVideo(
+          videoSourceUrl,
+          seriesTargetLocation,
+          videoName
+        );
+
         console.info("The video has been downloaded!\n");
       }
     }
@@ -217,7 +222,11 @@ const searchAndDownloadEpisode = async (download?: boolean) => {
         .then(decryptAndGetVideoSources)
         .then(parseSourcesAndGetVideo);
 
-      return { title: theChosenOne, videoSourceUrl };
+      return {
+        title: theChosenOne,
+        episodeNumber: selectedEpisodeNumber,
+        videoSourceUrl,
+      };
     }
 
     console.log("Episode not in range ...");
