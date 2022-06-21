@@ -12,14 +12,16 @@ AnimeGo-DL
 
   <div>
     <p style="text-align: justify;">
-      &nbsp; A blazingly fast :rocket:  node-based cli tool that streams (or downloads) anime from gogoanimes!
+      &nbsp; A blazingly fast :rocket:  node-based cli tool that streams (or downloads) anime from gogoanimes!  Anime in your terminal!
     </p>
   </div>
 </div>
 
 ---
 
-<img src="./.github/readme-images/cli-ex.png" alt="cli example" style="display: block;" />
+
+https://user-images.githubusercontent.com/11083531/174728256-b21e613e-a148-46f6-893d-fe9ac32ed223.mp4
+                                   
 <br />
 
 **Table of Contents**:
