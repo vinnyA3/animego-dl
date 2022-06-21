@@ -1,7 +1,7 @@
 {
   "name": "animego-dl",
-  "version": "3.2.1",
-  "description": "A cli tool to download your favorite anime series from gogoanimes",
+  "version": "4.0.0",
+  "description": "A cli tool to download or stream your favorite anime from gogoanimes",
   "scripts": {
     "test": "",
     "test:watch": "",
@@ -27,7 +27,9 @@
     "scraper",
     "anime download",
     "node",
-    "otaku"
+    "otaku",
+    "cli",
+    "typescript"
   ],
   "author": "vinnyA3",
   "bugs": {
