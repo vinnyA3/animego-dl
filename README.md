@@ -5,11 +5,21 @@ AnimeGo-DL
 ![NPM Latest](https://img.shields.io/npm/v/animego-dl/latest?style=flat-square)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-A *blazing fast* :rocket:  node-based cli tool that streams (or downloads) anime from `gogoanimes`!
+<div class="d-flex flex-items-center justify-flex-between">
+  <div>
+    <img src="./.github/readme-images/a.png" alt="anime-doko" width="100" height="100" style="display: inline-block; margin-right: 2.5em; />
+  </div>
+
+  <div>
+    <p style="text-align: justify;">
+      &nbsp; A blazingly fast :rocket:  node-based cli tool that streams (or downloads) anime from gogoanimes!
+    </p>
+  </div>
+</div>
 
 ---
 
-<img src="./.github/readme-images/a.png" alt="anime-doko" width="250" height="250">
+<img src="./.github/readme-images/cli-ex.png" alt="cli example" style="display: block;" />
 <br />
 
 **Table of Contents**:
