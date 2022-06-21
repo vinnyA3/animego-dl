@@ -51,10 +51,12 @@ npm install -g animego-dl # remove with: npm uninstall -g animego-dl
 
 \- *or* -
 
-
-Install with Docker:
+Install with Docker, to isolate the node runtime & bundle necessary dependencies:
 * Pull the [latest](https://hub.docker.com/r/vinnya3/animego-dl) docker image: `docker pull vinnya3/animego-dl`
 * Please refer to [Usage](#docker) for running w/ Docker.
+
+> The docker image comes with `yt-dlp` (required for downloading), and the `mpv`
+> player -- which is a lightweight video player to stream your anime!
 
 \- *or* -
 
@@ -120,28 +122,52 @@ Next, search & select the episode you'd like to download via the cli.  Enjoy!
 
 ## Docker
 
+> :warning: The image requires a connection to your Pulseaudio & Xorg servers,
+> so make sure you are running an Xdisplay & have Pulseaudio (or pipewire) on
+> your host machine.  If you're running Ubuntu, PopOS, or some debian
+> derivative, you should be fine!
+
 First, make sure you installed the [Docker image](https://hub.docker.com/r/vinnya3/animego-dl).
 
-Next, create your desired mount directory -- this will be your machine's local
-directory, where the anime will be downloaded; for example: `mkdir ./anime`
-
-You can now start create the mount point & run the container:
+**To stream**: you can run the following:
 ```
-docker run --rm -v ${PWD}/anime:/anime -it animego-dl /bin/bash
+docker run --rm -it \
+    --device /dev/dri \
+    --network host \
+    -e DISPLAY \
+    -v /etc/machine-id:/etc/machine-id:ro \
+    -v /run/user/1000/pulse:/run/user/1000/pulse \
+    -v $HOME/.Xauthority:/home/mpv/.Xauthority \
+    animego-dl /bin/sh
 ```
 
-After running the aforementioned command, you will be directed to an interactive
-shell session.  From here, you can run the tool as instructed [here](#usage).
+The aforementioned command will mount a few volumes that allow container to
+connect as a client to your host machine's Xorg and Pulseaudio servers.
 
-:warning: **important note**: make sure the download directory, specified by the
-`-d` option is `/anime` -- this is the mount point specified inside of the
-container.  The actual download directory, on your host machine, is what you
-specified earlier (when running the container).
+After running the command, you'll be greeted with the container's shell prompt.
 
-Example(s):
+From here, to run animego-dl: `npx animego-dl`.  When you are done, you can exit
+the container by typing `exit`.
+
+**To download**:
+
+First, create the necessary destination target in your current working
+directory: `mkdir ./animego-dl`.
+
+Next, run (note the volume mount for `./animego-dl`):
+```sh
+docker run --rm -it \
+    --device /dev/dri \
+    --network host \
+    -e DISPLAY \
+    -v /etc/machine-id:/etc/machine-id:ro \
+    -v /run/user/1000/pulse:/run/user/1000/pulse \
+    -v $HOME/.Xauthority:/home/mpv/.Xauthority \
+    -v ${PWD}/animego-dl:/animego-dl \
+    animego-dl /bin/sh
 ```
-#app> animego-dl -d /anime 'monster'
-```
+
+Finally, in the container's shell prompt, run: `npx animego-dl -d`
 
 ## Contributing
 
