@@ -9,10 +9,5 @@ export default {
     `episode-${episodeCount < 10 ? "0" + episodeCount : episodeCount}`,
   generateSeriesBaseUrl: (baseUrl: string, normalizedTitle: string) =>
     `${baseUrl}category/${normalizedTitle}`,
-  generateEpisodeUrl: (
-    baseUrl: string,
-    normalizedTitle: string,
-    episodeCount: number
-  ) => `${baseUrl}${normalizedTitle}-episode-${episodeCount}`,
   successfulDownload: "\nYour title has been downloaded!  Enjoy!",
 };

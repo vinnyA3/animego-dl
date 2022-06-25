@@ -1,12 +1,9 @@
-import * as fsP from "fs/promises";
-import path from "path";
 import { prompt } from "enquirer";
 
 import utils from "@utils/index";
 import { GOGO_ROOT } from "@constants/urls";
 import { BROWSER_HEADERS } from "@constants/headers";
 
-import locales from "./locales";
 import extractors from "./extractors";
 import {
   selectResultPrompt,
@@ -30,11 +27,9 @@ interface GogoVideoSourceList {
   linkiframe: string;
 }
 
-const { mkdir: mkdirAsync } = fsP;
 const {
   general: { compose, safeJSONParse, isStringEmpty },
   http: { httpGet, getOriginHeadersWithLocation },
-  download: { downloadAndSaveVideo },
 } = utils;
 
 const {
@@ -42,7 +37,6 @@ const {
   detailsEmptyOr404,
   getEntryServerUrl,
   getSearchResults,
-  extractVideoMetadataFromDetailsPage,
   getEpisodeRangesFromDetailsPage,
 } = extractors;
 
@@ -73,83 +67,6 @@ const getEpisodeRangesForSeries = async (seriesDetailsPageHTML: string) =>
 
 const normalizeInputAnimeName = (animeName: string): string =>
   animeName.toLowerCase().replace(/\s/gi, "-");
-
-const downloadSeries = async (cliOptions: {
-  directory: string;
-  animeName: string;
-}) => {
-  const saveLocation = cliOptions.directory;
-  const normalizedAnimeName = normalizeInputAnimeName(cliOptions.animeName);
-  const { location: BASE_URL } = await getOriginHeadersWithLocation(GOGO_ROOT);
-
-  const seriesBaseUrl = locales.generateSeriesBaseUrl(
-    BASE_URL,
-    normalizedAnimeName
-  );
-
-  const seriesDetailsPageHTML = await httpGet(seriesBaseUrl, {
-    ...BROWSER_HEADERS,
-  });
-
-  const episodeRanges = await getEpisodeRangesForSeries(seriesDetailsPageHTML);
-
-  if (!episodeRanges || !episodeRanges.length) {
-    return locales.errors.detailsPageProcessing;
-  }
-
-  const videoMetadata = extractVideoMetadataFromDetailsPage(
-    seriesDetailsPageHTML
-  );
-
-  const { title, releaseYear } = videoMetadata;
-  const seriesFolderName = `${title} (${releaseYear})`;
-  const seriesTargetLocation = path.join(saveLocation, seriesFolderName);
-
-  await mkdirAsync(seriesTargetLocation);
-  process.chdir(seriesTargetLocation);
-
-  for (
-    let currRangeIdx = 0;
-    currRangeIdx < episodeRanges.length;
-    currRangeIdx++
-  ) {
-    const { start: currentRangeStart, end: currentRangeEnd } =
-      episodeRanges[currRangeIdx];
-
-    for (
-      let currentEpisodeCount = currentRangeStart;
-      currentEpisodeCount <= currentRangeEnd;
-      currentEpisodeCount++
-    ) {
-      const episodeUrl = locales.generateEpisodeUrl(
-        BASE_URL,
-        normalizedAnimeName,
-        currentEpisodeCount
-      );
-
-      const episodePage = await httpGet(episodeUrl, { ...BROWSER_HEADERS });
-      const decryptedVideoSources = await decryptAndGetVideoSources(
-        episodePage
-      );
-
-      const videoSourceUrl = parseSourcesAndGetVideo(decryptedVideoSources);
-      const videoName = locales.createEpisodeFilename(currentEpisodeCount);
-
-      if (videoSourceUrl) {
-        console.info(`Now downloading: ${episodeUrl}\n`);
-        await downloadAndSaveVideo(
-          videoSourceUrl,
-          seriesTargetLocation,
-          videoName
-        );
-
-        console.info("The video has been downloaded!\n");
-      }
-    }
-  }
-
-  return locales.successfulDownload;
-};
 
 const promptSearchAgain = async () =>
   prompt([trySearchAgainPrompt]).then(
@@ -210,11 +127,9 @@ const searchAndDownloadEpisode = async (download?: boolean) => {
       selectedEpisodeNumber <= episodeRanges[episodeRanges.length - 1].end
     ) {
       const videoSourceUrl = await httpGet(
-        locales.generateEpisodeUrl(
-          BASE_URL,
-          normalizeInputAnimeName(theChosenOne),
-          selectedEpisodeNumber
-        ),
+        `${BASE_URL}${normalizeInputAnimeName(
+          theChosenOne
+        )}-episode-${selectedEpisodeNumber}`,
         {
           ...BROWSER_HEADERS,
         }
@@ -235,6 +150,5 @@ const searchAndDownloadEpisode = async (download?: boolean) => {
 };
 
 export default {
-  downloadSeries,
   searchAndDownloadEpisode,
 };
