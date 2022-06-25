@@ -22,7 +22,13 @@ const simpleLoader = (
   }, timer || 1000);
 
   return {
-    stop: () => clearInterval(intervalId),
+    stop: () => {
+      clearInterval(intervalId);
+      process.stdout.write("\n");
+    },
+    isRunning: () => {
+      return !!intervalId;
+    },
   };
 };
 

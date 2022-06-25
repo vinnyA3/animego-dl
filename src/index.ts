@@ -3,8 +3,8 @@ import path from "path";
 
 import Providers from "./providers";
 import locales from "./locales";
-import utils from "./utils";
 import players from "./players";
+import utils from "./utils";
 
 import lib from "../lib";
 
