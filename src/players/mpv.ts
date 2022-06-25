@@ -1,7 +1,9 @@
 import { spawn } from "child_process";
 
 import utils from "@utils/index";
+import { DEBUG } from "@utils/is-debug";
 import { USER_AGENT } from "@constants/headers";
+import errorCodes from "@constants/error-codes";
 
 import locales from "../locales";
 
@@ -9,7 +11,16 @@ import lib from "../../lib";
 
 const { checkExecutableSync } = lib;
 const { errors: errorLocales } = locales;
-const { loader } = utils;
+const {
+  loader,
+  general: { once },
+} = utils;
+
+const MPV_TAG = "mpv";
+const playerRunningLog = (player: string) =>
+  console.log(`${player} is playing ....\n`);
+
+const singlyLoggedPlayerRunning = once(playerRunningLog);
 
 export const mpvStreamHandler = (source: string) => {
   if (!checkExecutableSync("mpv")) {
@@ -28,23 +39,31 @@ export const mpvStreamHandler = (source: string) => {
     () => mpv.kill()
   );
 
-  const mpv = spawn("mpv", [`--user-agent='${USER_AGENT}'`, source]);
-
-  mpv.stdout.on("data", (buf) => {
-    processStdout += buf.toString();
-    if (playerLoader && processStdout.length) playerLoader.stop();
-    console.log(buf.toString());
+  const mpv = spawn("mpv", [`--user-agent='${USER_AGENT}'`, source], {
+    stdio: DEBUG ? "pipe" : "ignore",
   });
 
-  mpv.stderr.on("data", (buf) => {
+  mpv.stdout?.on("data", (buf) => {
     processStdout += buf.toString();
+    if (playerLoader?.isRunning()) processStdout += buf.toString();
+    if (processStdout.length) playerLoader?.stop();
+
+    if (DEBUG) {
+      console.log(buf.toString());
+    } else {
+      singlyLoggedPlayerRunning(MPV_TAG);
+    }
+  });
+
+  mpv.stderr?.on("data", (buf) => {
+    if (playerLoader?.isRunning()) processStdout += buf.toString();
     if (playerLoader && processStdout.length) playerLoader.stop();
-    console.error(buf.toString());
+    DEBUG && console.error(buf.toString());
   });
 
   mpv.on("exit", () => console.log(`\n${locales.streamConcluded}`));
-  mpv.on("error", () => {
-    if (playerLoader) playerLoader.stop();
-    console.error(errorLocales.mpvStartupFailure);
+  mpv.on("error", (err) => {
+    playerLoader?.stop();
+    console.error(DEBUG ? err : errorCodes[201]);
   });
 };

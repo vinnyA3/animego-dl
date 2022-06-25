@@ -39,6 +39,16 @@ const isObjectEmpty = (obj: object): boolean => {
   );
 };
 
+const once = (fn: (...args: any[]) => void) => {
+  let ran = false;
+
+  return (...args: any[]) => {
+    if (ran) return;
+    ran = true;
+    return fn(...args);
+  };
+};
+
 export default {
   compose,
   removeMatchedPattern,
@@ -46,4 +56,5 @@ export default {
   isStringEmpty,
   isObjectEmpty,
   safeJSONParse,
+  once,
 };
