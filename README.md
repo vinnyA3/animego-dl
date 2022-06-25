@@ -30,6 +30,7 @@ https://user-images.githubusercontent.com/11083531/174728256-b21e613e-a148-46f6-
 * [Usage](#usage)
   - [Streaming](#streaming)
   - [Downloading](#downloading)
+* [Docker](#docker)
 * [Contributing](#contributing)
 * [Development](#development)
   - [Testing](#testing)
@@ -53,9 +54,9 @@ npm install -g animego-dl # remove with: npm uninstall -g animego-dl
 
 \- *or* -
 
-Install with Docker, to isolate the node runtime & bundle necessary dependencies:
+Install with Docker (**Linux** only -- and those running XDM), to isolate the node runtime & bundle necessary dependencies:
 * Pull the [latest](https://hub.docker.com/r/vinnya3/animego-dl) docker image: `docker pull vinnya3/animego-dl`
-* Please refer to [Usage](#docker) for running w/ Docker.
+* Please refer to [Docker Usage](#docker) for running w/ Docker.
 
 > The docker image comes with `yt-dlp` (required for downloading), and the `mpv`
 > player -- which is a lightweight video player to stream your anime!
