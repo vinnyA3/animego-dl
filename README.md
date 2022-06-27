@@ -82,6 +82,7 @@ CLI tool to download your favorite anime series.
 Options:
   -v, --version   output the current version
   -d, --download  choose to download your desired anime
+  --debug         debug mode
   -h, --help      display help for command
 ```
 
