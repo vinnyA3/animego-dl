@@ -1,6 +1,7 @@
 import { prompt } from "enquirer";
 
 import utils from "@utils/index";
+
 import { GOGO_ROOT } from "@constants/urls";
 import { BROWSER_HEADERS } from "@constants/headers";
 
@@ -12,20 +13,7 @@ import {
   trySearchAgainPrompt,
   ResultAction,
 } from "./cli";
-
-interface GogoVideoSource {
-  file: string;
-  label: string;
-  type: string;
-}
-
-interface GogoVideoSourceList {
-  source: GogoVideoSource[];
-  source_bk: GogoVideoSource[];
-  track: [];
-  advertising: [];
-  linkiframe: string;
-}
+import { GogoVideoSourceList } from "./types";
 
 const {
   general: { compose, safeJSONParse, isStringEmpty },

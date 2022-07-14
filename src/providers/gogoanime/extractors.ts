@@ -6,6 +6,14 @@ import ENV_CONFIG from "@constants/environment";
 import { GOGO_ROOT, GOGO_BASE_SEARCH } from "@constants/urls";
 import utils from "@utils/index";
 
+import {
+  VideoMetadata,
+  EpisodeRange,
+  CryptInput,
+  RemoteSecrets,
+  GogoSearchResults,
+} from "./types";
+
 const {
   general: {
     compose,
@@ -16,36 +24,6 @@ const {
   },
   http: { httpGet },
 } = utils;
-
-interface VideoMetadata {
-  title?: string;
-  releaseYear?: string;
-}
-
-interface EpisodeRange {
-  start: number;
-  end: number;
-}
-
-interface CryptInput {
-  source: string;
-  key: string;
-  iv: string;
-}
-
-interface RemoteSecrets {
-  key: string;
-  second_key: string;
-  iv: string;
-}
-
-interface SearchItem {
-  id?: string | null;
-  title?: string | null;
-  url?: string | null;
-}
-
-type GogoSearchResults = { [key: string]: SearchItem } | Record<string, never>;
 
 const Constants = {
   algorithm: "aes-256-cbc",
