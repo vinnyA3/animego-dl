@@ -3,8 +3,8 @@ import { Command } from "commander";
 
 // AnimeDL
 import AnimeDL from "../src";
-import { setDebug, DEBUG } from "../src/utils/is-debug";
-import errorCodes from "../src/constants/error-codes";
+import { setDebug } from "../src/utils/is-debug";
+// import errorCodes from "../src/constants/error-codes";
 import pkgJSON from "../package.json";
 
 const { name: pkgName, version: pkgVersion } = pkgJSON;
@@ -22,11 +22,13 @@ program.parse();
 
 if (cliOptions.debug) setDebug();
 
-AnimeDL(cliOptions)
-  .then((data) => {
-    data && console.log(data);
-  })
-  .catch((error) => {
-    console.error(DEBUG ? error : errorCodes[100]);
-    process.exit(1);
-  });
+AnimeDL(cliOptions);
+
+// AnimeDL(cliOptions)
+//   .then((data) => {
+//     data && console.log(data);
+//   })
+//   .catch((error) => {
+//     console.error(DEBUG ? error : errorCodes[100]);
+//     process.exit(1);
+//   });

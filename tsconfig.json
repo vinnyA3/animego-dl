@@ -14,7 +14,9 @@
       "*": ["src/*", "*"],
       "@constants/*": ["src/constants/*"],
       "@utils/*": ["src/utils/*"],
-      "@providers/*": ["src/providers/*"]
+      "@providers/*": ["src/providers/*"],
+      "@navigation/*": ["src/navigation/*"],
+      "@redux/*": ["src/redux/*"]
     },
     "removeComments": false,
     "preserveConstEnums": true,
