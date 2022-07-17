@@ -1,13 +1,15 @@
 // import * as fsP from "fs/promises";
 // import path from "path";
+import { createStore, combineReducers, applyMiddleware } from "redux";
 
-import { createStore, combineReducers } from "./redux";
 import {
   ScreenNavigator as Navigator,
   registeredScreens,
   reducers as navigationReducer,
 } from "./navigation";
 import screens from "./constants/screens";
+
+import { logger } from "./middleware";
 // import Providers from "./providers";
 // import locales from "./locales";
 // import players from "./players";
@@ -29,11 +31,13 @@ import screens from "./constants/screens";
 // } = utils;
 
 // initialize store
-export const store = createStore(
-  combineReducers({
-    navigation: navigationReducer,
-  })
-);
+const rootReducer = combineReducers({
+  navigation: navigationReducer,
+});
+
+export type RootState = ReturnType<typeof rootReducer>;
+
+export const store = createStore(rootReducer, applyMiddleware(logger));
 
 // Initialize navigation manager
 Navigator.initialize(store, registeredScreens);

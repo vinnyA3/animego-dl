@@ -1,6 +1,6 @@
-import { bindActionCreators } from "../redux";
+import { bindActionCreators } from "redux";
 
-import { actionCreators as navigationActionCreators } from "./redux/actions";
+import { actionCreators as navigationActionCreators } from "./actions";
 
 // screens to register
 import Search from "./screens/search";

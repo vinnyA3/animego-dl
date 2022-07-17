@@ -1,5 +1,4 @@
-// @ts-ignore
-import { Action } from "@redux";
+import { AnyAction as Action } from "redux";
 
 import actionTypes from "./actions";
 
