@@ -20,19 +20,23 @@ const {
   processing: { searchAnime },
 } = Gogoanime;
 
+const inputAnimePrompt = [
+  {
+    type: "input",
+    name: "inputAnimeName",
+    message: "Please type the name of your desired anime",
+  },
+];
+
 class Search {
   constructor() {
     this.render();
   }
 
   private async prompt() {
-    const { inputAnimeName }: { inputAnimeName: string } = await prompt([
-      {
-        type: "input",
-        name: "inputAnimeName",
-        message: "Please type the name of your desired anime",
-      },
-    ]);
+    const { inputAnimeName }: { inputAnimeName: string } = await prompt(
+      inputAnimePrompt
+    );
 
     return inputAnimeName;
   }
