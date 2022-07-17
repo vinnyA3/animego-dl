@@ -4,39 +4,43 @@ import { prompt } from "enquirer";
 // import Navigator from "../../navigator";
 
 export type SelectResultsParams = {
-  searchResults?: string[];
+  searchResults: string[];
 };
 
 export const createSelectResultsParams = ({
   searchResults = [],
 }: {
-  searchResults?: string[];
+  searchResults: string[];
 }): SelectResultsParams => ({ searchResults });
 
-class SelectResults {
-  private params?: SelectResultsParams;
+const selectResultPrompt = (choices: string[]) => [
+  {
+    type: "autocomplete",
+    name: "chosenTitle",
+    message: "Select a title to Stream",
+    initial: 1,
+    choices,
+  },
+];
 
-  constructor(params?: SelectResultsParams) {
+class SelectResults {
+  private params: SelectResultsParams = { searchResults: [] };
+
+  constructor(params: SelectResultsParams) {
     this.params = params;
     this.render();
   }
 
-  private async prompt(choices?: string[]) {
-    const selected = await prompt([
-      {
-        type: "autocomplete",
-        name: "chosenTitle",
-        message: "Select a title to stream",
-        initial: 1,
-        choices,
-      },
-    ]).then((res: { chosenTitle?: string }) => res.chosenTitle || "");
+  private async prompt(choices: string[]) {
+    const selected = await prompt(selectResultPrompt(choices)).then(
+      (res: { chosenTitle?: string }) => res.chosenTitle
+    );
 
-    return selected;
+    return selected || "";
   }
 
   render = async () => {
-    const selectedTitle = await this.prompt(this.params?.searchResults);
+    const selectedTitle = await this.prompt(this.params.searchResults);
     console.log(selectedTitle);
   };
 }
