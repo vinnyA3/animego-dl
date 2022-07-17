@@ -2,4 +2,5 @@
 
 export default {
   Search: "Search",
+  SelectResults: "SelectResults",
 };

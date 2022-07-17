@@ -2,12 +2,13 @@
 // import path from "path";
 import { createStore, combineReducers, applyMiddleware } from "redux";
 
+import screens from "./constants/screens";
+
 import {
   ScreenNavigator as Navigator,
   registeredScreens,
-  reducers as navigationReducer,
+  reducers,
 } from "./navigation";
-import screens from "./constants/screens";
 
 import { logger } from "./middleware";
 // import Providers from "./providers";
@@ -32,7 +33,7 @@ import { logger } from "./middleware";
 
 // initialize store
 const rootReducer = combineReducers({
-  navigation: navigationReducer,
+  ...reducers,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
@@ -57,9 +58,8 @@ Navigator.initialize(store, registeredScreens);
 //   return errorLocales.noYTDLP;
 // };
 
-const init = (cliOptions: { download?: boolean }) => {
-  const { download: shouldDownload } = cliOptions;
-  console.log(shouldDownload);
+// cliOptions: { download?: boolean }
+const init = () => {
   Navigator.navigate(screens.Search);
   // const result = await Gogoanime.processing.searchAndDownloadEpisode(
   //   shouldDownload

@@ -1,6 +1,6 @@
 import { bindActionCreators } from "redux";
 
-import { actionCreators as navigationActionCreators } from "./actions";
+import { navigationActionCreators } from "./actions";
 
 // screens to register
 import Search from "./screens/search";
@@ -27,7 +27,7 @@ class ScreenNavigator {
     }
 
     if (this.boundedActionCreators) {
-      return this; // already initialized
+      return this; // already initialized, return instance
     }
 
     const boundedActionCreators = bindActionCreators(
