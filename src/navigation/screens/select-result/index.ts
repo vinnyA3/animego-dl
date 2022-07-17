@@ -1,7 +1,12 @@
 import { prompt } from "enquirer";
+import { bindActionCreators } from "redux";
 
-// import Providers from "../../../providers";
-// import Navigator from "../../navigator";
+import { store } from "src/index";
+
+// import Navigator from "@navigation/navigator";
+import { cliActionCreators } from "@navigation/actions";
+
+import locales from "./locales";
 
 export type SelectResultsParams = {
   searchResults: string[];
@@ -16,18 +21,22 @@ export const createSelectResultsParams = ({
 const selectResultPrompt = (choices: string[]) => [
   {
     type: "autocomplete",
-    name: "chosenTitle",
-    message: "Select a title to Stream",
-    initial: 1,
     choices,
+    ...locales.prompt,
   },
 ];
 
 class SelectResults {
   private params: SelectResultsParams = { searchResults: [] };
+  private boundedActionCreators: any;
 
   constructor(params: SelectResultsParams) {
     this.params = params;
+    this.boundedActionCreators = bindActionCreators(
+      cliActionCreators,
+      store.dispatch
+    );
+
     this.render();
   }
 
@@ -41,6 +50,9 @@ class SelectResults {
 
   render = async () => {
     const selectedTitle = await this.prompt(this.params.searchResults);
+
+    this.boundedActionCreators.setSelectedTitle(selectedTitle);
+
     console.log(selectedTitle);
   };
 }

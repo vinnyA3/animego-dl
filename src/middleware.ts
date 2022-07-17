@@ -8,7 +8,6 @@ export const logger: Middleware<Record<string, unknown>, RootState> = ({
   return (next) => (action) => {
     console.log("[Redux Logger] will dispatch", action);
 
-    // @ts-ignore
     const returnValue = next(action);
 
     console.log("[Redux Logger] state after dispatch", getState());

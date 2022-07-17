@@ -1,10 +1,17 @@
 import { prompt } from "enquirer";
+import { bindActionCreators } from "redux";
 
-import { Gogoanime } from "../../../providers";
+import { store } from "src/index";
 
-import Navigator from "../../navigator";
+import { Gogoanime } from "@providers/index";
 
-import { createSelectResultsParams } from "../select-result";
+import Screens from "@constants/screens";
+
+import Navigator from "@navigation/navigator";
+import { cliActionCreators } from "@navigation/actions";
+import { createSelectResultsParams } from "@navigation/screens/select-result";
+
+import locales from "./locales";
 
 export type SearchNavigationParams = {
   shouldDownload?: boolean;
@@ -23,13 +30,19 @@ const {
 const inputAnimePrompt = [
   {
     type: "input",
-    name: "inputAnimeName",
-    message: "Please type the name of your desired anime",
+    ...locales.prompt,
   },
 ];
 
 class Search {
+  private boundedActionCreators: any;
+
   constructor() {
+    this.boundedActionCreators = bindActionCreators(
+      cliActionCreators,
+      store.dispatch
+    );
+
     this.render();
   }
 
@@ -45,8 +58,10 @@ class Search {
     const inputAnimeName = await this.prompt();
     const results = await searchAnime(inputAnimeName);
 
+    this.boundedActionCreators.setInputAnimeName(inputAnimeName);
+
     Navigator.navigate(
-      "SelectResults",
+      Screens.SelectResults,
       createSelectResultsParams({
         searchResults: results,
       })
