@@ -39,7 +39,8 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",
     "commander": "^9.0.0",
-    "enquirer": "^2.3.6"
+    "enquirer": "^2.3.6",
+    "redux": "^4.2.0"
   },
   "devDependencies": {
     "@types/mocha": "^9.1.0",
