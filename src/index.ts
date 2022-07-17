@@ -1,69 +1,88 @@
-import * as fsP from "fs/promises";
-import path from "path";
+// import * as fsP from "fs/promises";
+// import path from "path";
 
-import Providers from "./providers";
-import locales from "./locales";
-import players from "./players";
-import utils from "./utils";
-
-import lib from "../lib";
+import { createStore, combineReducers } from "./redux";
+import {
+  ScreenNavigator as Navigator,
+  registeredScreens,
+  reducers as navigationReducer,
+} from "./navigation";
+import screens from "./constants/screens";
+// import Providers from "./providers";
+// import locales from "./locales";
+// import players from "./players";
+// import utils from "./utils";
+//
+// import lib from "../lib";
 
 // Currently, there's only one provider (gogoanime)
 //   -- in the future, this will be the entry point for the cli & give the user
 //   options for choosing different providers & download schemes
-// export default Providers.Gogoanime;
-const { Gogoanime } = Providers;
-const { mpv } = players;
-const { mkdir: mkdirAsync } = fsP;
-const { checkExecutableSync } = lib;
-const { errors: errorLocales } = locales;
-const {
-  download: { downloadAndSaveVideo },
-} = utils;
 
-const ytDLPDownload = async (
-  location: string,
-  source: string,
-  name: string
-) => {
-  if (checkExecutableSync("yt-dlp")) {
-    process.cwd();
-    await mkdirAsync(location, { recursive: true });
-    await downloadAndSaveVideo(source, location, name);
-    return locales.downloadSuccess(name);
-  }
+// const { Gogoanime } = Providers;
+// const { mpv } = players;
+// const { mkdir: mkdirAsync } = fsP;
+// const { checkExecutableSync } = lib;
+// const { errors: errorLocales } = locales;
+// const {
+//   download: { downloadAndSaveVideo },
+// } = utils;
 
-  return errorLocales.noYTDLP;
-};
+// initialize store
+export const store = createStore(
+  combineReducers({
+    navigation: navigationReducer,
+  })
+);
 
-const init = async (cliOptions: { download?: boolean }) => {
+// Initialize navigation manager
+Navigator.initialize(store, registeredScreens);
+
+// const ytDLPDownload = async (
+//   location: string,
+//   source: string,
+//   name: string
+// ) => {
+//   if (checkExecutableSync("yt-dlp")) {
+//     process.cwd();
+//     await mkdirAsync(location, { recursive: true });
+//     await downloadAndSaveVideo(source, location, name);
+//     return locales.downloadSuccess(name);
+//   }
+//
+//   return errorLocales.noYTDLP;
+// };
+
+const init = (cliOptions: { download?: boolean }) => {
   const { download: shouldDownload } = cliOptions;
-  const result = await Gogoanime.processing.searchAndDownloadEpisode(
-    shouldDownload
-  );
-
-  if (!(result?.videoSourceUrl && result?.title && result?.episodeNumber)) {
-    return errorLocales.couldNotExtractVideo;
-  }
-
-  const { videoSourceUrl, title, episodeNumber } = result;
-
-  if (shouldDownload) {
-    ytDLPDownload(
-      path.join("./animego-dl", title),
-      videoSourceUrl,
-      `episode-${episodeNumber}`
-    );
-
-    return;
-  }
-
-  if (checkExecutableSync("mpv")) {
-    mpv(videoSourceUrl);
-  } else {
-    console.log(errorLocales.noStreamUtilFound);
-    return videoSourceUrl;
-  }
+  console.log(shouldDownload);
+  Navigator.navigate(screens.Search);
+  // const result = await Gogoanime.processing.searchAndDownloadEpisode(
+  //   shouldDownload
+  // );
+  //
+  // if (!(result?.videoSourceUrl && result?.title && result?.episodeNumber)) {
+  //   return errorLocales.couldNotExtractVideo;
+  // }
+  //
+  // const { videoSourceUrl, title, episodeNumber } = result;
+  //
+  // if (shouldDownload) {
+  //   ytDLPDownload(
+  //     path.join("./animego-dl", title),
+  //     videoSourceUrl,
+  //     `episode-${episodeNumber}`
+  //   );
+  //
+  //   return;
+  // }
+  //
+  // if (checkExecutableSync("mpv")) {
+  //   mpv(videoSourceUrl);
+  // } else {
+  //   console.log(errorLocales.noStreamUtilFound);
+  //   return videoSourceUrl;
+  // }
 };
 
 export default init;
