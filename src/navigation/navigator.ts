@@ -1,14 +1,18 @@
-import { bindActionCreators } from "redux";
+import { bindActionCreators, Store } from "redux";
 
-import { navigationActionCreators } from "./actions";
+import { actionCreators as navigationActionCreators } from "@state/navigation/actions";
 
-// screens to register
-import Search from "./screens/search";
-import SelectResults from "./screens/select-result";
+// Screens to be registered
+import Search from "./search";
+import SelectResults from "./select-result";
+
+export interface NavigatorParams {
+  [key: string]: unknown;
+}
 
 export interface NavigatorT {
-  navigate: (screenName: string, params?: any) => void;
-  push: (screenName: string, params?: any) => void;
+  navigate: (screenName: string, params?: NavigatorParams) => void;
+  push: (screenName: string, params?: NavigatorParams) => void;
 }
 
 export const registeredScreens = {
@@ -16,10 +20,14 @@ export const registeredScreens = {
   SelectResults,
 };
 
-class ScreenNavigator {
+/*
+ * Navigator - A singleton import which provides a hook into the basic,
+ * redux navigation api. This will be refactored into an extendable interface
+ */
+class Navigator {
   private boundedActionCreators: any;
 
-  initialize(store: any, screens: any) {
+  initialize(store: Store, screens: any) {
     if (!(store && screens)) {
       throw new Error(
         "[ScreenNavigator] Must initialize with store & registered screen config."
@@ -42,7 +50,7 @@ class ScreenNavigator {
     return this;
   }
 
-  navigate(screenName: string, params?: any) {
+  navigate(screenName: string, params?: NavigatorParams) {
     if (!this?.boundedActionCreators) {
       throw new Error(
         "[ScreenNavigator] Called 'navigate' before 'initialize'."
@@ -52,7 +60,7 @@ class ScreenNavigator {
     this.boundedActionCreators.pushScreen(screenName, params);
   }
 
-  push(screenName: string, params?: any) {
+  push(screenName: string, params?: NavigatorParams) {
     if (!this?.boundedActionCreators) {
       throw new Error("[ScreenNavigator] Called 'push' before 'initialize'.");
     }
@@ -61,4 +69,4 @@ class ScreenNavigator {
   }
 }
 
-export default new ScreenNavigator();
+export default new Navigator();

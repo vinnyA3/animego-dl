@@ -1,16 +1,14 @@
 // import * as fsP from "fs/promises";
 // import path from "path";
-import { createStore, combineReducers, applyMiddleware } from "redux";
+import { createStore, applyMiddleware } from "redux";
 
 import screens from "./constants/screens";
 
-import {
-  ScreenNavigator as Navigator,
-  registeredScreens,
-  reducers,
-} from "./navigation";
+import { ScreenNavigator as Navigator, registeredScreens } from "./navigation";
 
-import { logger } from "./middleware";
+import rootReducer from "./state";
+import { actionCreators } from "./state/cli/actions";
+import { logger } from "./state/middleware";
 // import Providers from "./providers";
 // import locales from "./locales";
 // import players from "./players";
@@ -31,17 +29,8 @@ import { logger } from "./middleware";
 //   download: { downloadAndSaveVideo },
 // } = utils;
 
-// initialize store
-const rootReducer = combineReducers({
-  ...reducers,
-});
-
-export type RootState = ReturnType<typeof rootReducer>;
-
+// Initialize store
 export const store = createStore(rootReducer, applyMiddleware(logger));
-
-// Initialize navigation manager
-Navigator.initialize(store, registeredScreens);
 
 // const ytDLPDownload = async (
 //   location: string,
@@ -58,9 +47,16 @@ Navigator.initialize(store, registeredScreens);
 //   return errorLocales.noYTDLP;
 // };
 
-// cliOptions: { download?: boolean }
-const init = () => {
-  Navigator.navigate(screens.Search);
+const init = (cliOptions: { download?: boolean }) => {
+  const { download: shouldDownload } = cliOptions;
+
+  if (shouldDownload !== undefined) {
+    store.dispatch(actionCreators.setShouldDownload(shouldDownload));
+  }
+
+  // Initialize navigation manager
+  Navigator.initialize(store, registeredScreens).push(screens.Search); // set initial screen
+
   // const result = await Gogoanime.processing.searchAndDownloadEpisode(
   //   shouldDownload
   // );

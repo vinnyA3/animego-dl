@@ -1,15 +1,15 @@
 import { prompt } from "enquirer";
 import { bindActionCreators } from "redux";
 
-import { store } from "src/index";
+import Screens from "@constants/screens";
 
 import { Gogoanime } from "@providers/index";
 
-import Screens from "@constants/screens";
+import { actionCreators as cliActionCreators } from "@state/cli/actions";
 
 import Navigator from "@navigation/navigator";
-import { cliActionCreators } from "@navigation/actions";
-import { createSelectResultsParams } from "@navigation/screens/select-result";
+import ScreenNavigator from "@navigation/screen";
+import { createSelectResultsParams } from "@navigation/select-result";
 
 import locales from "./locales";
 
@@ -34,13 +34,15 @@ const inputAnimePrompt = [
   },
 ];
 
-class Search {
+class Search extends ScreenNavigator {
   private boundedActionCreators: any;
 
   constructor() {
+    super();
+
     this.boundedActionCreators = bindActionCreators(
       cliActionCreators,
-      store.dispatch
+      this.store.dispatch
     );
 
     this.render();

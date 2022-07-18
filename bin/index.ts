@@ -22,7 +22,7 @@ program.parse();
 
 if (cliOptions.debug) setDebug();
 
-AnimeDL();
+AnimeDL(cliOptions);
 
 // AnimeDL(cliOptions)
 //   .then((data) => {

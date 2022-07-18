@@ -1,10 +1,8 @@
 import { prompt } from "enquirer";
 import { bindActionCreators } from "redux";
 
-import { store } from "src/index";
-
-// import Navigator from "@navigation/navigator";
-import { cliActionCreators } from "@navigation/actions";
+import ScreenNavigator from "@navigation/screen";
+import { actionCreators as cliActionCreators } from "@state/cli/actions";
 
 import locales from "./locales";
 
@@ -26,15 +24,17 @@ const selectResultPrompt = (choices: string[]) => [
   },
 ];
 
-class SelectResults {
+class SelectResults extends ScreenNavigator {
   private params: SelectResultsParams = { searchResults: [] };
   private boundedActionCreators: any;
 
   constructor(params: SelectResultsParams) {
+    super();
+
     this.params = params;
     this.boundedActionCreators = bindActionCreators(
       cliActionCreators,
-      store.dispatch
+      this.store.dispatch
     );
 
     this.render();
@@ -50,9 +50,7 @@ class SelectResults {
 
   render = async () => {
     const selectedTitle = await this.prompt(this.params.searchResults);
-
     this.boundedActionCreators.setSelectedTitle(selectedTitle);
-
     console.log(selectedTitle);
   };
 }
