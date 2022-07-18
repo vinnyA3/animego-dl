@@ -15,7 +15,8 @@
       "@constants/*": ["src/constants/*"],
       "@utils/*": ["src/utils/*"],
       "@providers/*": ["src/providers/*"],
-      "@navigation/*": ["src/navigation/*"]
+      "@navigation/*": ["src/navigation/*"],
+      "@state/*": ["src/state/*"]
     },
     "removeComments": false,
     "preserveConstEnums": true,
