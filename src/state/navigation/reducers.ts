@@ -30,10 +30,9 @@ const navigationReducer = (
       };
     }
     case actionTypes.PUSH_SCREEN: {
-      const { params, screen } = payload;
-      const screenToInit = state.registeredScreens[screen];
+      const screenToInit = state.registeredScreens[action.screen];
       // @ts-ignore
-      const initializedScreen = new screenToInit(params);
+      const initializedScreen = new screenToInit(action?.params);
 
       return {
         ...state,
