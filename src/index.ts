@@ -54,8 +54,9 @@ const init = (cliOptions: { download?: boolean }) => {
     store.dispatch(actionCreators.setShouldDownload(shouldDownload));
   }
 
-  // Initialize navigation manager
-  Navigator.initialize(store, registeredScreens).push(screens.Search); // set initial screen
+  // Initialize Navigation
+  const navigator = Navigator.initialize(store, registeredScreens);
+  navigator.push && navigator.push(screens.Search);
 
   // const result = await Gogoanime.processing.searchAndDownloadEpisode(
   //   shouldDownload

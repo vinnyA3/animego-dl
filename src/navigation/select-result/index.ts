@@ -1,20 +1,21 @@
 import { prompt } from "enquirer";
 import { bindActionCreators } from "redux";
 
-import ScreenNavigator from "@navigation/screen";
+import { withNavigator, NavigatorT } from "@navigation/navigator";
+
 import { actionCreators as cliActionCreators } from "@state/cli/actions";
 
 import locales from "./locales";
 
 export type SelectResultsParams = {
-  searchResults: string[];
+  params: { searchResults: string[] };
 };
 
 export const createSelectResultsParams = ({
   searchResults = [],
 }: {
   searchResults: string[];
-}): SelectResultsParams => ({ searchResults });
+}): SelectResultsParams => ({ params: { searchResults } });
 
 const selectResultPrompt = (choices: string[]) => [
   {
@@ -24,35 +25,40 @@ const selectResultPrompt = (choices: string[]) => [
   },
 ];
 
-class SelectResults extends ScreenNavigator {
-  private params: SelectResultsParams = { searchResults: [] };
-  private boundedActionCreators: any;
-
-  constructor(params: SelectResultsParams) {
-    super();
-
-    this.params = params;
-    this.boundedActionCreators = bindActionCreators(
-      cliActionCreators,
-      this.store.dispatch
-    );
-
-    this.render();
-  }
-
-  private async prompt(choices: string[]) {
-    const selected = await prompt(selectResultPrompt(choices)).then(
-      (res: { chosenTitle?: string }) => res.chosenTitle
-    );
-
-    return selected || "";
-  }
-
-  render = async () => {
-    const selectedTitle = await this.prompt(this.params.searchResults);
-    this.boundedActionCreators.setSelectedTitle(selectedTitle);
-    console.log(selectedTitle);
-  };
+interface SelectResultsT {
+  init: (params: SelectResultsParams) => this;
 }
 
-export default SelectResults;
+type SelectResultsExtended = SelectResultsT & Omit<NavigatorT, "initialize">;
+
+const SelectResults: SelectResultsExtended = {
+  init: function selectResultsInit(params: SelectResultsParams) {
+    if (!this.store) {
+      throw new Error(
+        "[SelectResults] store is undefined.  Did you initialize the Navigator?"
+      );
+    }
+
+    const _bounded = bindActionCreators(cliActionCreators, this.store.dispatch);
+
+    const _prompt = async (choices: string[]) => {
+      const selected = await prompt(selectResultPrompt(choices)).then(
+        (res: { chosenTitle?: string }) => res.chosenTitle
+      );
+
+      return selected || "";
+    };
+
+    const _render = async () => {
+      const selectedTitle = await _prompt(params?.params.searchResults);
+      _bounded.setSelectedTitle(selectedTitle);
+      console.log(selectedTitle);
+    };
+
+    _render().catch(console.error);
+
+    return this;
+  },
+};
+
+export default withNavigator(SelectResults);
