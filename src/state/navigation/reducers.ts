@@ -30,8 +30,6 @@ const navigationReducer = (
       };
     }
     case actionTypes.PUSH_SCREEN: {
-      console.log("REDUCER - action is");
-      console.log(action);
       const { params: navigationParams = {} } = action;
       const screenToInit = (
         state.registeredScreens[action.screen] as unknown as any

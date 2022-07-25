@@ -1,7 +1,7 @@
 import { prompt } from "enquirer";
 import { bindActionCreators } from "redux";
 
-import { withNavigator, NavigatorT } from "@navigation/navigator";
+import { withNavigator, WithNavigatorT } from "@navigation/navigator";
 
 import { actionCreators as cliActionCreators } from "@state/cli/actions";
 
@@ -29,18 +29,9 @@ interface SelectResultsT {
   init: (params: SelectResultsParams) => this;
 }
 
-type SelectResultsExtended = SelectResultsT & Omit<NavigatorT, "initialize">;
-
-const SelectResults: SelectResultsExtended = {
+const SelectResults = {
   init: function selectResultsInit(params: SelectResultsParams) {
-    if (!this.store) {
-      throw new Error(
-        "[SelectResults] store is undefined.  Did you initialize the Navigator?"
-      );
-    }
-
     const _bounded = bindActionCreators(cliActionCreators, this.store.dispatch);
-
     const _prompt = async (choices: string[]) => {
       const selected = await prompt(selectResultPrompt(choices)).then(
         (res: { chosenTitle?: string }) => res.chosenTitle
@@ -59,6 +50,6 @@ const SelectResults: SelectResultsExtended = {
 
     return this;
   },
-};
+} as WithNavigatorT<SelectResultsT>;
 
 export default withNavigator(SelectResults);

@@ -7,7 +7,7 @@ import { Gogoanime } from "@providers/index";
 
 import { actionCreators as cliActionCreators } from "@state/cli/actions";
 
-import { withNavigator, NavigatorT } from "@navigation/navigator";
+import { withNavigator, WithNavigatorT } from "@navigation/navigator";
 import { createSelectResultsParams } from "@navigation/select-result";
 
 import locales from "./locales";
@@ -37,18 +37,9 @@ interface SearchT {
   init: () => this;
 }
 
-type SearchExtended = SearchT & NavigatorT;
-
-const Search: SearchExtended = {
+const Search = {
   init: function searchInit() {
-    if (!this.store) {
-      throw new Error(
-        "[Search] store is undefined.  Did you initialize the Navigator?"
-      );
-    }
-
     const _bounded = bindActionCreators(cliActionCreators, this.store.dispatch);
-
     const _prompt = async () => {
       const { inputAnimeName }: { inputAnimeName: string } =
         await enquirerPrompt(inputAnimePrompt);
@@ -62,20 +53,18 @@ const Search: SearchExtended = {
 
       _bounded.setInputAnimeName(inputAnimeName);
 
-      if (this.navigate) {
-        this.navigate(
-          Screens.SelectResults,
-          createSelectResultsParams({
-            searchResults: results,
-          })
-        );
-      }
+      this.navigate(
+        Screens.SelectResults,
+        createSelectResultsParams({
+          searchResults: results,
+        })
+      );
     };
 
     _render().catch(console.error);
 
     return this;
   },
-};
+} as WithNavigatorT<SearchT>;
 
 export default withNavigator(Search);
