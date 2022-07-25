@@ -1,5 +1,7 @@
 import { AnyAction as Action } from "redux";
 
+import { Screen } from "@navigation/types";
+
 import actionTypes from "./actions";
 
 interface NavigationState {
@@ -31,9 +33,11 @@ const navigationReducer = (
     }
     case actionTypes.PUSH_SCREEN: {
       const { params: navigationParams = {} } = action;
-      const screenToInit = (
-        state.registeredScreens[action.screen] as unknown as any
-      )().default;
+      const { default: screenToInit } = (
+        state.registeredScreens[action.screen] as () => {
+          default: Screen;
+        }
+      )();
 
       return {
         ...state,

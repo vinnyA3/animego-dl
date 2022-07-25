@@ -1,7 +1,8 @@
 import { prompt } from "enquirer";
 import { bindActionCreators } from "redux";
 
-import { withNavigator, WithNavigatorT } from "@navigation/navigator";
+import { withNavigator } from "@navigation/navigator";
+import { Screen } from "@navigation/types";
 
 import { actionCreators as cliActionCreators } from "@state/cli/actions";
 
@@ -25,10 +26,6 @@ const selectResultPrompt = (choices: string[]) => [
   },
 ];
 
-interface SelectResultsT {
-  init: (params: SelectResultsParams) => this;
-}
-
 const SelectResults = {
   init: function selectResultsInit(params: SelectResultsParams) {
     const _bounded = bindActionCreators(cliActionCreators, this.store.dispatch);
@@ -50,6 +47,6 @@ const SelectResults = {
 
     return this;
   },
-} as WithNavigatorT<SelectResultsT>;
+} as Screen;
 
 export default withNavigator(SelectResults);
