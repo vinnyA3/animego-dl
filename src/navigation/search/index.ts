@@ -7,8 +7,9 @@ import { Gogoanime } from "@providers/index";
 
 import { actionCreators as cliActionCreators } from "@state/cli/actions";
 
-import { withNavigator, WithNavigatorT } from "@navigation/navigator";
+import { withNavigator } from "@navigation/navigator";
 import { createSelectResultsParams } from "@navigation/select-result";
+import { Screen } from "@navigation/types";
 
 import locales from "./locales";
 
@@ -32,10 +33,6 @@ const inputAnimePrompt = [
     ...locales.prompt,
   },
 ];
-
-interface SearchT {
-  init: () => this;
-}
 
 const Search = {
   init: function searchInit() {
@@ -65,6 +62,6 @@ const Search = {
 
     return this;
   },
-} as WithNavigatorT<SearchT>;
+} as Screen;
 
 export default withNavigator(Search);
