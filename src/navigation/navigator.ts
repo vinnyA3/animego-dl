@@ -7,23 +7,38 @@ export interface NavigatorParams {
 }
 
 export interface NavigatorT {
-  initialize: (store: Store, screens: any) => this;
-  store?: Store;
-  navigate?: (screenName: string, params?: NavigatorParams) => void;
-  push?: (screenName: string, params?: NavigatorParams) => void;
+  initialize: (store: Store, screens: unknown) => this;
+  store: Store | null;
+  navigate: (
+    screenName: string,
+    params?: NavigatorParams
+  ) => void | (() => void);
+  push: (screenName: string, params?: NavigatorParams) => void | (() => void);
 }
+
+// WithNavigatorT - will always return the store, omit & attach to generic
+export type WithNavigatorT<T = any> = T &
+  Omit<NavigatorT, "initialize" | "store"> & { store: Store };
 
 export const registeredScreens = {
   Search: () => require("./search"),
   SelectResults: () => require("./select-result"),
 };
 
+const noop = () => {
+  /* noop */
+};
+
 const Navigator: NavigatorT = {
-  initialize(store: Store, screens: any) {
+  initialize(store: Store, screens: unknown) {
     if (!(store && screens)) {
       throw new Error(
         "[ScreenNavigator] Must initialize with store & registered screen config."
       );
+    }
+
+    if (this.store) {
+      return this; // protect against reinitialization
     }
 
     const _boundedActionCreators = bindActionCreators(
@@ -34,7 +49,7 @@ const Navigator: NavigatorT = {
     _boundedActionCreators.registerScreens(screens);
 
     this.store = store;
-    this.navigate = function navigate(screenName: string, params?: any) {
+    this.navigate = function navigate(screenName: string, params?: unknown) {
       if (!_boundedActionCreators) {
         throw new Error(
           "[ScreenNavigator] Called 'navigate' before 'initialize'."
@@ -48,16 +63,28 @@ const Navigator: NavigatorT = {
 
     return this;
   },
+  store: null,
+  navigate: noop,
+  push: noop,
 };
 
-//@ts-ignore
 const navigatorDecorator = (navigator: NavigatorT) => {
-  return function withNavigator(extendible: any) {
-    if (!extendible) {
-      throw new Error("[withNavigator] requires an object type argument");
+  return function withNavigator(screen: unknown) {
+    if (!screen) {
+      throw new Error(
+        "[withNavigator] requires an screen object type argument"
+      );
     }
 
-    return Object.assign({}, navigator, extendible);
+    const screenWithNavigator = Object.assign({}, navigator, screen);
+
+    if (!screenWithNavigator.store) {
+      throw new Error(
+        "[withNavigator] store was never set. Did you initialize the Navigator?"
+      );
+    }
+
+    return screenWithNavigator;
   };
 };
 
