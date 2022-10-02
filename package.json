@@ -67,5 +67,8 @@
   "main": "index.js",
   "directories": {
     "lib": "lib"
+  },
+  "volta": {
+    "node": "16.17.1"
   }
 }
