@@ -1,69 +1,88 @@
-import * as fsP from "fs/promises";
-import path from "path";
+// import * as fsP from "fs/promises";
+// import path from "path";
+import { createStore, applyMiddleware } from "redux";
 
-import Providers from "./providers";
-import locales from "./locales";
-import players from "./players";
-import utils from "./utils";
+import screens from "./constants/screens";
 
-import lib from "../lib";
+import { ScreenNavigator as Navigator, registeredScreens } from "./navigation";
+
+import rootReducer from "./state";
+import { actionCreators } from "./state/cli/actions";
+import { logger } from "./state/middleware";
+// import Providers from "./providers";
+// import locales from "./locales";
+// import players from "./players";
+// import utils from "./utils";
+//
+// import lib from "../lib";
 
 // Currently, there's only one provider (gogoanime)
 //   -- in the future, this will be the entry point for the cli & give the user
 //   options for choosing different providers & download schemes
-// export default Providers.Gogoanime;
-const { Gogoanime } = Providers;
-const { mpv } = players;
-const { mkdir: mkdirAsync } = fsP;
-const { checkExecutableSync } = lib;
-const { errors: errorLocales } = locales;
-const {
-  download: { downloadAndSaveVideo },
-} = utils;
 
-const ytDLPDownload = async (
-  location: string,
-  source: string,
-  name: string
-) => {
-  if (checkExecutableSync("yt-dlp")) {
-    process.cwd();
-    await mkdirAsync(location, { recursive: true });
-    await downloadAndSaveVideo(source, location, name);
-    return locales.downloadSuccess(name);
-  }
+// const { Gogoanime } = Providers;
+// const { mpv } = players;
+// const { mkdir: mkdirAsync } = fsP;
+// const { checkExecutableSync } = lib;
+// const { errors: errorLocales } = locales;
+// const {
+//   download: { downloadAndSaveVideo },
+// } = utils;
 
-  return errorLocales.noYTDLP;
-};
+// Initialize store
+export const store = createStore(rootReducer, applyMiddleware(logger));
 
-const init = async (cliOptions: { download?: boolean }) => {
+// const ytDLPDownload = async (
+//   location: string,
+//   source: string,
+//   name: string
+// ) => {
+//   if (checkExecutableSync("yt-dlp")) {
+//     process.cwd();
+//     await mkdirAsync(location, { recursive: true });
+//     await downloadAndSaveVideo(source, location, name);
+//     return locales.downloadSuccess(name);
+//   }
+//
+//   return errorLocales.noYTDLP;
+// };
+
+const init = (cliOptions: { download?: boolean }) => {
   const { download: shouldDownload } = cliOptions;
-  const result = await Gogoanime.processing.searchAndDownloadEpisode(
-    shouldDownload
-  );
 
-  if (!(result?.videoSourceUrl && result?.title && result?.episodeNumber)) {
-    return errorLocales.couldNotExtractVideo;
+  if (shouldDownload !== undefined) {
+    store.dispatch(actionCreators.setShouldDownload(shouldDownload));
   }
 
-  const { videoSourceUrl, title, episodeNumber } = result;
+  // Initialize Navigation & set initial screen
+  Navigator.initialize(store, registeredScreens).push(screens.Search);
 
-  if (shouldDownload) {
-    ytDLPDownload(
-      path.join("./animego-dl", title),
-      videoSourceUrl,
-      `episode-${episodeNumber}`
-    );
-
-    return;
-  }
-
-  if (checkExecutableSync("mpv")) {
-    mpv(videoSourceUrl);
-  } else {
-    console.log(errorLocales.noStreamUtilFound);
-    return videoSourceUrl;
-  }
+  // const result = await Gogoanime.processing.searchAndDownloadEpisode(
+  //   shouldDownload
+  // );
+  //
+  // if (!(result?.videoSourceUrl && result?.title && result?.episodeNumber)) {
+  //   return errorLocales.couldNotExtractVideo;
+  // }
+  //
+  // const { videoSourceUrl, title, episodeNumber } = result;
+  //
+  // if (shouldDownload) {
+  //   ytDLPDownload(
+  //     path.join("./animego-dl", title),
+  //     videoSourceUrl,
+  //     `episode-${episodeNumber}`
+  //   );
+  //
+  //   return;
+  // }
+  //
+  // if (checkExecutableSync("mpv")) {
+  //   mpv(videoSourceUrl);
+  // } else {
+  //   console.log(errorLocales.noStreamUtilFound);
+  //   return videoSourceUrl;
+  // }
 };
 
 export default init;
