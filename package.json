@@ -1,6 +1,6 @@
 {
   "name": "animego-dl",
-  "version": "4.1.4",
+  "version": "4.1.3",
   "description": "A cli tool to download or stream your favorite anime from gogoanimes",
   "scripts": {
     "test": "",
