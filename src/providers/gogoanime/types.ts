@@ -14,12 +14,6 @@ export interface CryptInput {
   iv: string;
 }
 
-export interface RemoteSecrets {
-  key: string;
-  second_key: string;
-  iv: string;
-}
-
 interface SearchItem {
   id?: string | null;
   title?: string | null;
