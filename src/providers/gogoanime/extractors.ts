@@ -2,7 +2,6 @@ import { createCipheriv, createDecipheriv } from "crypto";
 import cheerio from "cheerio";
 
 import { USER_AGENT, BROWSER_HEADERS } from "@constants/headers";
-import ENV_CONFIG from "@constants/environment";
 import { GOGO_ROOT, GOGO_BASE_SEARCH } from "@constants/urls";
 import utils from "@utils/index";
 
@@ -10,7 +9,6 @@ import {
   VideoMetadata,
   EpisodeRange,
   CryptInput,
-  RemoteSecrets,
   GogoSearchResults,
 } from "./types";
 
@@ -25,9 +23,8 @@ const {
   http: { httpGet },
 } = utils;
 
-const Constants = {
-  algorithm: "aes-256-cbc",
-};
+const CIPHER = "aes-256-cbc";
+const KEYS_RE = /(?:container|videocontent)-(\d+)/gm;
 
 const stripNewlinesAndSpacesToNum: (s: string) => number = compose(
   stringToNum,
@@ -35,7 +32,7 @@ const stripNewlinesAndSpacesToNum: (s: string) => number = compose(
 );
 
 const aesEncrypt = ({ source, key, iv }: CryptInput) => {
-  const cipher = createCipheriv(Constants.algorithm, key, iv);
+  const cipher = createCipheriv(CIPHER, key, iv);
   let encryptedKey = "";
 
   encryptedKey += cipher.update(source, "binary");
@@ -45,7 +42,7 @@ const aesEncrypt = ({ source, key, iv }: CryptInput) => {
 };
 
 const aesDecrypt = ({ source, key, iv }: CryptInput) => {
-  const decipher = createDecipheriv(Constants.algorithm, key, iv);
+  const decipher = createDecipheriv(CIPHER, key, iv);
   let decryptedToken = "";
   // @ts-ignore
   decryptedToken += decipher.update(source, "base64url", "utf-8");
@@ -67,21 +64,20 @@ const extractAndDecryptSources = async (url: URL | null) => {
   const embedId = url.searchParams.get("id");
   const $ = cheerio.load(serverPageResponse);
   const encryptedSource = $("script[data-name='episode']").data().value;
-  const parsedSecretResult = safeJSONParse(
-    await httpGet(ENV_CONFIG.urls.gogoanime.superSecret)
-  );
+  const [encryption_key, iv, decryption_key] = (
+    serverPageResponse.match(KEYS_RE) || []
+  ).map((secret) => secret.split("-")[1]);
 
-  if (parsedSecretResult) {
-    const {
-      key,
-      second_key: secondKey,
+  if (encryption_key && iv && decryption_key) {
+    const encId = aesEncrypt({
+      source: embedId as string,
+      key: encryption_key,
       iv,
-    } = parsedSecretResult as unknown as RemoteSecrets;
+    });
 
-    const encId = aesEncrypt({ source: embedId as string, key, iv });
     const decSource = aesDecrypt({
       source: encryptedSource as string,
-      key,
+      key: encryption_key,
       iv,
     });
 
@@ -99,7 +95,7 @@ const extractAndDecryptSources = async (url: URL | null) => {
 
     return aesDecrypt({
       source: parsedEncryptedSources as string,
-      key: secondKey,
+      key: decryption_key,
       iv,
     });
   }
@@ -118,7 +114,8 @@ const detailsEmptyOr404 = (pageHTML: string): boolean => {
 const getEntryServerUrl = (pageHTML: string): URL | null => {
   const $ = cheerio.load(pageHTML);
   const serverUrl = $("#load_anime > div > div > iframe").attr("src");
-  return serverUrl ? new URL("http:" + serverUrl) : null;
+
+  return serverUrl ? new URL(serverUrl) : null;
 };
 
 const getSearchResults = async (userAnimeQuery: string, pageNumber = 1) => {
