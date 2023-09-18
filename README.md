@@ -17,6 +17,8 @@ AnimeGo-DL
   </div>
 </div>
 
+> 📢  Bun support coming soon!!!!
+
 ---
 
 
