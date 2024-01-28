@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv } from "crypto";
+import { createCipheriv, createDecipheriv } from "node:crypto";
 import cheerio from "cheerio";
 
 import { USER_AGENT, BROWSER_HEADERS } from "@constants/headers";
@@ -156,7 +156,7 @@ const extractVideoMetadataFromDetailsPage = (
 
   videoMetadata.title = videoInfo.find("h1").text();
 
-  videoInfo.find("p").each(function () {
+  videoInfo.find("p").each(function() {
     const type = $(this).find("span").text().toLowerCase();
 
     if (type.includes("released")) {
@@ -177,7 +177,7 @@ const getEpisodeRangesFromDetailsPage = (pageHTML: string) => {
   const episodeRanges = episodePage.find("li");
   const extractedRanges: EpisodeRange[] = [];
 
-  episodeRanges.each(function () {
+  episodeRanges.each(function() {
     const range = $(this).find("a").text();
     const bounds = range.split("-");
     const [start, end] = bounds.map(stripNewlinesAndSpacesToNum);
@@ -185,13 +185,13 @@ const getEpisodeRangesFromDetailsPage = (pageHTML: string) => {
     extractedRanges.push(
       bounds.length === 1
         ? {
-            start: 1,
-            end: 1,
-          }
+          start: 1,
+          end: 1,
+        }
         : {
-            start: start === 0 ? 1 : start,
-            end,
-          }
+          start: start === 0 ? 1 : start,
+          end,
+        }
     );
   });
 
