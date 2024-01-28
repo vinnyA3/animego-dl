@@ -19,7 +19,7 @@ const RedirectCodesMap: { [k in string]: number } = {
   "302": 302,
 };
 
-const noop = () => {};
+const noop = () => { /* noop */ };
 
 const chooseClient = (url: string): ClientType => {
   const reProtocolMatch = /(https?):\/\//gi;
@@ -27,7 +27,7 @@ const chooseClient = (url: string): ClientType => {
   let protocolScheme: Protocols = "https";
 
   if (matchResult.length) {
-    protocolScheme = (matchResult[0].split(":")[0] ||
+    protocolScheme = (matchResult[0]?.split(":")[0] ||
       protocolScheme) as Protocols;
   }
 
