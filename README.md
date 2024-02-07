@@ -38,7 +38,8 @@ https://user-images.githubusercontent.com/11083531/174728256-b21e613e-a148-46f6-
 
 ## Dependencies
 
-> :warning: Sorry Windows users, things have been tested on Linux & MacOS only.  Support
+> [!NOTE]
+> Sorry Windows users, things have been tested on Linux & MacOS only.  Support
 > might be coming soon.
 
 First, make sure you have the following installed on your machine:
@@ -118,7 +119,8 @@ animego-dl -d
 
 Next, search & select the episode you'd like to download via the cli.  Enjoy!
 
-> :warning: The tool will download to your current working directory (where you
+> [!NOTE]
+> The tool will download to your current working directory (where you
 > ran the command), and under a directory named `animego-dl` -- options to
 > choose your destination directory will be added soon!
 
@@ -126,7 +128,8 @@ Next, search & select the episode you'd like to download via the cli.  Enjoy!
 
 ## Docker
 
-> :warning: The image requires a connection to your Pulseaudio & Xorg servers,
+> [!WARNING]
+> The image requires a connection to your Pulseaudio & Xorg servers,
 > so make sure you are running an Xdisplay & have Pulseaudio (or pipewire) on
 > your host machine.  If you're running Ubuntu, PopOS, or some debian
 > derivative, you should be fine!
@@ -200,7 +203,8 @@ To run local tests: `npm run test`
 
 To run tests in watch mode: `npm run test:watch`
 
-> :warning: Tests are few and far between at the moment.  In fact, no test
+> [!NOTE]
+> Tests are few and far between at the moment.  In fact, no test
 > suites are live at this time - 2/13/22.
 
 ## Disclaimer
